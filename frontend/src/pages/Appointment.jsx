@@ -11,8 +11,8 @@ const Appointment = () => {
 
   const [docInfo, setDocInfo] = useState(null);
   const [docSlots, setDocSlots] = useState([]);
-  const [slotIndex, setSlotIndex] = useState(0);
-  const [slotTime, setSlotTime] = useState("");
+  // const [slotIndex, setSlotIndex] = useState(0);
+  // const [slotTime, setSlotTime] = useState("");
 
   const fetchDocInfo = async () => {
     const docInfo = doctors.find((doc) => doc._id === docId);
@@ -104,7 +104,7 @@ const Appointment = () => {
             </p>
             <div className="flex items-center gap-2 text-sm mt-1 text-gray-600">
               <p>
-                {docInfo.degree} - {docInfo.speciality}
+                  {docInfo.speciality} teacher
               </p>
               <button className="py-0.5 px-2 border text-xs rounded-full ">
                 {" "}
@@ -124,7 +124,7 @@ const Appointment = () => {
             </div>
 
             <p className="text-gray-500 font-medium mt-4">
-              Appointment fee:{" "}
+              Price : {" "}
               <span className="text-gray-600">
                 {currencySymbol} {docInfo.fees}
               </span>
@@ -133,7 +133,7 @@ const Appointment = () => {
         </div>
 
         {/* ------------Booking slots ------------- */}
-        <div className="sm:ml-72 sm:pl-4 mt-4  font-medium text-gray-700">
+        {/* <div className="sm:ml-72 sm:pl-4 mt-4  font-medium text-gray-700">
           <p>Booking slots </p>
           <div className="flex gap-3 items-center w-full overflow-x-scroll mt-4">
             {docSlots.length &&
@@ -165,7 +165,7 @@ const Appointment = () => {
               ))}
           </div>
           <button className="bg-primary text-white text-sm font-light px-14 py-3 rounded-full my-6">Book an appointment</button>
-        </div>
+        </div> */}
 
         {/*  Listing Related Doctors */}
         <RelatedDoctors docId = {docId} speciality = {docInfo.speciality}/>
