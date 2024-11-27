@@ -7,7 +7,6 @@ import RelatedDoctors from "../components/RelatedDoctors";
 const Appointment = () => {
   const { docId } = useParams();
   const { doctors, currencySymbol } = useContext(AppContext);
-  const dayOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
   const [docInfo, setDocInfo] = useState(null);
   const [docSlots, setDocSlots] = useState([]);
@@ -127,6 +126,12 @@ const Appointment = () => {
               Price : {" "}
               <span className="text-gray-600">
                 {currencySymbol} {docInfo.fees}
+              </span>
+            </p>
+            <p className="text-gray-500 font-medium mt-4">
+              Phone : {" "}
+              <span className="text-gray-600">
+                994-55-300-50-50
               </span>
             </p>
           </div>

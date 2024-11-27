@@ -39,12 +39,12 @@ import Neurologist from './Neurologist.svg'
 import Pediatricians from './Pediatricians.svg'
 // import physcis from "./physicss.jpg"
 import math from "./math.jpg"
-import fizik from "./fizik.jpg"
 import chemistry from "./chemistry.jpg"
 import geography from "./geography.jpg"
 import biology from "./biology.jpg"
 import english from "./english.jpg"
 import physics from "./physics.png"
+import noAvatar from "./no_avatar.png"
 
 export const assets = {
     appointment_img,
@@ -63,7 +63,8 @@ export const assets = {
     dropdown_icon,
     upload_icon,
     stripe_logo,
-    razorpay_logo
+    razorpay_logo,
+    noAvatar
 }
 
 export const specialityData = [

@@ -21,4 +21,16 @@
     .active p {
         @apply text-white bg-primary
     }
+
 }
+
+
+@media (max-width:1024px) {
+  
+    .add-notes-modal {
+        max-height: 80vh; /* Restrict height to ensure scrolling within modal */
+        overflow-y: auto; /* Enable vertical scrolling */
+        overflow-x: hidden;
+      }
+}
+

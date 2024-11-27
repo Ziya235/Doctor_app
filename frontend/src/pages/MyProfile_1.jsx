@@ -243,13 +243,7 @@ const MyProfile_1 = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Subject
                 </label>
-                <select
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                  defaultValue=""
-                >
-                  <option value="" disabled hidden>
-                    Choose your speciality
-                  </option>
+                <select className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none">
                   <option value="Math">Math</option>
                   <option value="Physics">Physics</option>
                   <option value="Biology">Biology</option>
