@@ -1,74 +1,81 @@
 import React from "react";
 import { assets } from "../assets/assets";
 
-const About = () => {
+const AboutSection = () => {
   return (
-    <div>
-      <div className="text-center text-2xl pt-10 text-gray-500">
-        <p>
-          ABOUT <span className="text-gray-700 font-medium">US</span>
-        </p>
+    <div className="p-5">
+      {/* Mission Section */}
+      <div className="flex flex-col lg:flex-row gap-5 bg-white shadow-lg h-[300px] lg:h-[384px] mb-6">
+        {/* Left Section */}
+        <div className="p-5 flex flex-col items-center text-center gap-14">
+          <h2
+            className="bg-bottom bg-contain bg-no-repeat text-4xl lg:text-5xl font-medium min-h-[76px]"
+            style={{ backgroundImage: `url(${assets.underline})` }}
+          >
+            Missiyamiz
+          </h2>
+          <p className="w-full lg:w-[400px] text-lg lg:text-xl font-normal">
+            Şagirdlərin özlərinə uyğun müəllimləri asanlıqla taparaq, təhsil
+            həyatlarında uğur qazanmalarına dəstək olmaqdır.
+          </p>
+        </div>
+
+        {/* Right Section */}
+        <div
+          className="flex-1 bg-cover bg-no-repeat bg-center hidden lg:block"
+          style={{ backgroundImage: `url(${assets.mission1})` }}
+        ></div>
       </div>
 
-      <div className="my-10 flex flex-col md:flex-row gap-12">
-        <img
-          className="w-full md:max-w-[360px]"
-          src={assets.about_image}
-          alt=""
-        />
-        <div className="flex flex-col justify-center gap-6 md:w-2/4 text-sm text-gray-600">
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic,
-            soluta? Maiores, a autem! Aliquid, labore, nemo cum fugit temporibus
-            molestiae in repellat dicta commodi voluptates laborum. Nihil alias
-            incidunt vitae.
-          </p>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam
-            voluptatibus iste unde possimus vel reprehenderit voluptatem, beatae
-            ex amet dolorum dolores dignissimos saepe minima distinctio quam in
-            illo harum totam!
-          </p>
-          <b className="text-gray-600">Our Vision</b>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla
-            voluptatibus in cum quia ducimus consequatur illum itaque fugiat
-            nostrum fugit. Pariatur libero reiciendis fugiat eius veritatis
-            ducimus, repellendus in id.
-          </p>
-        </div>
-      </div>
+      {/* Value Section */}
+      <div className="flex flex-col lg:flex-row gap-5 bg-white shadow-lg min-h-[384px]">
+        {/* Left Section */}
+        <div className="p-5 flex flex-col items-center text-center w-full lg:w-1/2">
+          <h2 className="text-5xl font-medium mb-3">Dəyərlərimiz</h2>
 
-      <div className="text-xl my-4">
-        <p>
-          WHY <span className="text-gray-700 font-semibold"> CHOOSE US</span>
-        </p>
-      </div>
+          <div className="my-2">
+            <h4 className="text-xl font-semibold">Şəffafıq.</h4>
+            <p>
+              Açıq və dürüstük. Yaxşı və pis olmasından asılı olmayaraq
+              məlumatları paylaşırıq. Davamlı olaraq təcrübələrimizdən
+              öyrənirik.
+            </p>
+          </div>
 
-      <div className="flex flex-col md:flex-row mb-20">
-        <div className="border px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-5 text-[-15px] hover:bg-primary hover:text-white transition-allduration-300 text-gray-600 cursor-pointer">
-          <b> Efficiency :</b>
-          <p>
-            Streamlined appointment scheduling that fits into your busy
-            lifestyle.
-          </p>
+          <div className="my-2">
+            <h4 className="text-xl font-semibold">Yenilikçiyik.</h4>
+            <p>
+              Biz fəal şəkildə Doqquz-un missiyasını davam etdirmək üçün yeni və
+              fərqli yollar izləyirik. Özümüzə meydan oxuyaraq öz yolumuzu
+              cızırıq.
+            </p>
+          </div>
+          <div className="my-2">
+            <h4 className="text-xl font-semibold">Biz bir komandayıq.</h4>
+            <p>
+              Hörmət və bir-birimizə qayğı ilə birlikdə işləyirik. Birlikdə
+              əylənirik. Komandamız vəzifə və hədəflərimizə əsaslanaraq çox
+              çalışır.
+            </p>
+          </div>
+
+          <div className="my-2">
+            <h4 className="text-xl font-semibold">Biz əzmkarıq.</h4>
+            <p>
+              Dözümlü və təşəbbüskarıq. Çətinlikləri fürsət kimi görürük. Həvəs
+              və cəsarətlə işi başa çatdırmaq üçün bir araya gəlirik.
+            </p>
+          </div>
         </div>
-        <div className="border px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-5 text-[-15px] hover:bg-primary hover:text-white transition-allduration-300 text-gray-600 cursor-pointer">
-          <b>Convenience:</b>
-          <p>
-            Acces to a network of trusted healthcare professionals in your area.
-          </p>
-        </div>
-        <div className="border px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-5 text-[-15px] hover:bg-primary hover:text-white transition-allduration-300 text-gray-600 cursor-pointer">
-          <b>Personalization: </b>
-          <p>
-            Tailored recommendations and reminders to help you stay on top of
-            your health.
-          </p>
-        </div>
+
+        {/* Right Section */}
+        <div
+          className="flex-1 bg-cover bg-no-repeat bg-center hidden lg:block"
+          style={{ backgroundImage: `url(${assets.mission2})` }}
+        ></div>
       </div>
     </div>
   );
 };
 
-export default About;
+export default AboutSection;

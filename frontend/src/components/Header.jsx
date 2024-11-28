@@ -33,7 +33,7 @@ const Header = () => {
       {/* Right Side */}
       <div className="md:w-1/2 flex justify-center">
         <img
-          className="rounded-xl shadow-lg hover:scale-105 transition-transform duration-300"
+          className="rounded-xl shadow-lg "
           src={assets.header_img}
           alt="Header"
         />

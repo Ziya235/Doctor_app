@@ -45,6 +45,9 @@ import biology from "./biology.jpg"
 import english from "./english.jpg"
 import physics from "./physics.png"
 import noAvatar from "./no_avatar.png"
+import mission1 from "./mission.png"
+import mission2 from "./mission2.svg"
+import underline from "./underline.png"
 
 export const assets = {
     appointment_img,
@@ -64,7 +67,10 @@ export const assets = {
     upload_icon,
     stripe_logo,
     razorpay_logo,
-    noAvatar
+    noAvatar,
+    mission1,
+    mission2,
+    underline
 }
 
 export const specialityData = [
@@ -114,7 +120,7 @@ export const doctors = [
         speciality: 'Physics',
         degree: '',
         experience: '4 Years',
-        about: 'Dr. Davis has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies. Dr. Davis has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies.',
+        about: ' treatment strategies.',
         fees: 50,
         address: {
             line1: '17th Cross, Richmond',

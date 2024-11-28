@@ -3,14 +3,26 @@ import React, { useRef, useEffect, useState } from "react";
 const GoogleMap = () => {
     const mapRef = useRef(null);
     const [map, setMap] = useState(null);
-    const markerRef = useRef(null); // Use a ref to track the marker
+    const markerRef = useRef(null); // Ref to track the marker
+
+    const fixedLocation = {
+        lat: 40.39522087832711,
+        lng: 49.94292212951702,
+    }; // Fixed Location
 
     useEffect(() => {
         const initializeMap = () => {
             const google = window.google;
             const mapInstance = new google.maps.Map(mapRef.current, {
-                center: { lat: 37.7749, lng: -122.4194 }, // Default to San Francisco
+                center: fixedLocation, // Set the center to the fixed location
                 zoom: 10,
+            });
+
+            // Add a marker for the fixed location
+            markerRef.current = new google.maps.Marker({
+                position: fixedLocation,
+                map: mapInstance,
+                title: "Fixed Location",
             });
 
             // Add a click event listener to the map
