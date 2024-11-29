@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "js-cookie": "^3.0.5",
-    "react-hook-form": "^7.53.2"
-  }
-}

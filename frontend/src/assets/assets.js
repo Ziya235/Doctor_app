@@ -48,6 +48,9 @@ import noAvatar from "./no_avatar.png"
 import mission1 from "./mission.png"
 import mission2 from "./mission2.svg"
 import underline from "./underline.png"
+import az_dili from "./az-dili.png"
+import tarix from "./tarix.jpg"
+import ielts from "./ielts.png"
 
 export const assets = {
     appointment_img,
@@ -70,45 +73,50 @@ export const assets = {
     noAvatar,
     mission1,
     mission2,
-    underline
+    underline,
+    az_dili,
+    tarix,
+    ielts,
 }
 
 export const specialityData = [
     {
-        speciality: 'Physics',
-        image: physics
+        speciality: 'Azərbaycan dili',
+        image: az_dili
     },
     {
-        speciality: 'Math',
+        speciality: 'Riyaziyyat',
         image: math
-    },
-    {
-        speciality: 'Chemistry',
-        image: chemistry
     },
     {
         speciality: 'English',
         image: english
     },
     {
-        speciality: 'Geography',
+        speciality: 'Fizika',
+        image: physics
+    },
+  
+    {
+        speciality: 'Kimya',
+        image: chemistry
+    },
+
+    {
+        speciality: 'Coğrafiya',
         image: geography
     },
     {
-        speciality: 'Biology',
+        speciality: 'Tarix',
+        image: tarix
+    },
+    {
+        speciality: 'Biologiya',
         image: biology
     },
     {
-        speciality: 'Biology',
-        image: biology
-    },
-    {
-        speciality: 'Biology',
-        image: biology
-    },
-    {
-        speciality: 'Biology',
-        image: biology
+        speciality: 'İelts',
+        image: ielts
     },
 ]
 

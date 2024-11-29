@@ -134,7 +134,7 @@ const MyProfile = () => {
             </div>
 
             <div className="flex-1 border border-gray-400 rounded-lg px-8 py-8 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0 pb-[-4rem]  relative">
-            {/* ---------Doc Info: name, degree, experience--------- */}
+              {/* ---------Doc Info: name, degree, experience--------- */}
               <p className="flex items-center gap-2 text-2xl font-medium text-gray-900">
                 {docInfo.name}
                 <img src={assets.verified_icon} alt="" />
@@ -171,29 +171,31 @@ const MyProfile = () => {
                 </p>
 
                 <button
-  onClick={() => setOpenAddEditModal(true)}
-  className="mt-4 absolute   lg:right-10  px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
->
-  UPDATE
-</button>
+                  onClick={() => setOpenAddEditModal(true)}
+                  className="mt-4 absolute   lg:right-10  px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                >
+                  UPDATE
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      <Modal
-        isOpen={openAddEditModal}
-        // onRequestClose={() => setOpenAddEditModal(false)}
-        size={"full"}
-        style={{
-          overlay: {
-            backgroundColor: "rgba(0,0,0,0.5)", // Darker overlay for emphasis
-          },
-        }}
-        contentLabel=""
-        className="add-notes-modal w-full max-w-4xl bg-white rounded-lg mx-auto mt-10 p-8 shadow-lg relative"
-      >
+     
+        <Modal
+          isOpen={openAddEditModal}
+          size={"full"}
+          style={{
+            overlay: {
+              backgroundColor: "rgba(0,0,0,0.5)",
+              zIndex: 60, // Higher z-index than the header
+            },
+          }}
+          className="fixed inset-0 z-50 overflow-y-auto"
+          contentLabel=""
+        >
+          <div className="add-notes-modal w-full max-w-4xl bg-white rounded-lg mx-auto mt-10 p-8 shadow-lg relative">
         {/* Close Button */}
         <button
           onClick={() => setOpenAddEditModal(false)}
@@ -368,6 +370,7 @@ const MyProfile = () => {
             Save
           </button>
         </div>
+        </div>
       </Modal>
 
       {/* Education Part */}
@@ -430,108 +433,110 @@ const MyProfile = () => {
 
         <Modal
           isOpen={openAddEditModal_edu}
-          // onRequestClose={() => setOpenAddEditModal(false)}
           size={"full"}
           style={{
             overlay: {
-              backgroundColor: "rgba(0,0,0,0.5)", // Darker overlay for emphasis
+              backgroundColor: "rgba(0,0,0,0.5)",
+              zIndex: 60, // Higher z-index than the header
             },
           }}
+          className="fixed inset-0 z-50 overflow-y-auto"
           contentLabel=""
-          className="add-notes-modal w-full max-w-4xl bg-white rounded-lg mx-auto mt-14 p-8 shadow-lg relative"
         >
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold text-gray-800 tracking-wide">
-              Təhsil
-            </h1>
-            <button
-              className="bg-gray-200 hover:bg-gray-300 text-gray-600 px-3 py-2 rounded-full focus:outline-none"
-              onClick={() => setOpenAddEditModal_edu(false)}
-            >
-              ✕
-            </button>
-          </div>
-
-          <div className="">
-            <div className="flex flex-col lg:gap-8 lg:flex-row">
-              <div className="mb-4 flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Universitet adı
-                </label>
-                <input
-                  type="text"
-                  placeholder="Universitet adı"
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-              <div className="mb-4 flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  İxtisas
-                </label>
-                <input
-                  type="text"
-                  placeholder="İxtisas"
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
+          <div className="add-notes-modal w-full max-w-4xl bg-white rounded-lg mx-auto mt-14 p-8 shadow-lg relative">
+            <div className="flex justify-between items-center mb-4">
+              <h1 className="text-2xl font-bold text-gray-800 tracking-wide">
+                Təhsil
+              </h1>
+              <button
+                className="bg-gray-200 hover:bg-gray-300 text-gray-600 px-3 py-2 rounded-full focus:outline-none"
+                onClick={() => setOpenAddEditModal_edu(false)}
+              >
+                ✕
+              </button>
             </div>
-            <div className="flex flex-col lg:gap-8 lg:flex-row">
-              <div className="mb-4 flex-1 ">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Start date
-                </label>
-                <input
-                  type="date"
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                />
+
+            <div className="">
+              <div className="flex flex-col lg:gap-8 lg:flex-row">
+                <div className="mb-4 flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Universitet adı
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Universitet adı"
+                    className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div className="mb-4 flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    İxtisas
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="İxtisas"
+                    className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
               </div>
-              <div className="mb-4 flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  End date
-                </label>
-                <div className="flex items-center gap-4">
+              <div className="flex flex-col lg:gap-8 lg:flex-row">
+                <div className="mb-4 flex-1 ">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Start date
+                  </label>
                   <input
                     type="date"
-                    id="endDate"
                     className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                    disabled={isPresent}
-                    placeholder="mm/dd/yyyy"
-                    value={isPresent ? "" : endDate} // Reset value when "Present" is checked
-                    onChange={(e) => setEndDate(e.target.value)}
                   />
-                  <div className="flex items-center">
+                </div>
+                <div className="mb-4 flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    End date
+                  </label>
+                  <div className="flex items-center gap-4">
                     <input
-                      type="checkbox"
-                      id="isPresent"
-                      className="mr-2"
-                      checked={isPresent}
-                      onChange={handlePresentCheckboxChange}
+                      type="date"
+                      id="endDate"
+                      className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                      disabled={isPresent}
+                      placeholder="mm/dd/yyyy"
+                      value={isPresent ? "" : endDate} // Reset value when "Present" is checked
+                      onChange={(e) => setEndDate(e.target.value)}
                     />
-                    <label
-                      htmlFor="isPresent"
-                      className="text-sm text-gray-700"
-                    >
-                      Present
-                    </label>
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="isPresent"
+                        className="mr-2"
+                        checked={isPresent}
+                        onChange={handlePresentCheckboxChange}
+                      />
+                      <label
+                        htmlFor="isPresent"
+                        className="text-sm text-gray-700"
+                      >
+                        Present
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="">
-            <div className="mb-4 flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                About you
-              </label>
-              <textarea
-                placeholder="Write information about you"
-                className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none resize-none h-32"
-              />
-            </div>
-            <div className="flex items-center justify-center lg:items-start lg:justify-end">
-              <button className="w-full lg:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition-all duration-200 ease-in-out">
-                Save
-              </button>
+            <div className="">
+              <div className="mb-4 flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  About you
+                </label>
+                <textarea
+                  placeholder="Write information about you"
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none resize-none h-32"
+                />
+              </div>
+              <div className="flex items-center justify-center lg:items-start lg:justify-end">
+                <button className="w-full lg:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition-all duration-200 ease-in-out">
+                  Save
+                </button>
+              </div>
             </div>
           </div>
         </Modal>
@@ -585,120 +590,120 @@ const MyProfile = () => {
             {/* Add Experience Button */}
             <div className="flex items-center gap-1 bg-blue-600 cursor-pointer text-white px-5 py-2 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 transition-all mt-6">
               <MdAdd />
-              <button
-                onClick={() => setOpenAddEditModal_exp(true)}
-               
-              >
+              <button onClick={() => setOpenAddEditModal_exp(true)}>
                 Əlavə et
               </button>
             </div>
           </div>
         </div>
 
+        {/* Modal content */}
         <Modal
           isOpen={openAddEditModal_exp}
-          // onRequestClose={() => setOpenAddEditModal(false)}
           size={"full"}
           style={{
             overlay: {
-              backgroundColor: "rgba(0,0,0,0.5)", // Darker overlay for emphasis
+              backgroundColor: "rgba(0,0,0,0.5)",
+              zIndex: 60, // Higher z-index than the header
             },
           }}
+          className="fixed inset-0 z-50 overflow-y-auto"
           contentLabel=""
-          className="add-notes-modal w-full max-w-4xl bg-white rounded-lg mx-auto mt-14 p-8 shadow-lg relative"
         >
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold text-gray-800 tracking-wide">
-              Təcrübə
-            </h1>
-            <button
-              className="bg-gray-200 hover:bg-gray-300 text-gray-600 px-3 py-2 rounded-full focus:outline-none"
-              onClick={() => setOpenAddEditModal_exp(false)}
-            >
-              ✕
-            </button>
-          </div>
-
-          <div className="">
-            <div className="flex flex-col lg:gap-8 lg:flex-row">
-              <div className="mb-4 flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Şirkətin adı
-                </label>
-                <input
-                  type="text"
-                  placeholder="Şirkətin adı"
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-              <div className="mb-4 flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Vəzifə
-                </label>
-                <input
-                  type="text"
-                  placeholder="Vəzifə"
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
+          <div className="add-notes-modal w-full max-w-4xl bg-white rounded-lg mx-auto mt-14 p-8 shadow-lg relative">
+            <div className="flex justify-between items-center mb-4">
+              <h1 className="text-2xl font-bold text-gray-800 tracking-wide">
+                Təcrübə
+              </h1>
+              <button
+                className="bg-gray-200 hover:bg-gray-300 text-gray-600 px-3 py-2 rounded-full focus:outline-none"
+                onClick={() => setOpenAddEditModal_exp(false)}
+              >
+                ✕
+              </button>
             </div>
-            <div className="flex flex-col lg:gap-8 lg:flex-row">
-              <div className="mb-4 flex-1 ">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Start date
-                </label>
-                <input
-                  type="date"
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                />
+
+            <div className="">
+              <div className="flex flex-col lg:gap-8 lg:flex-row">
+                <div className="mb-4 flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Şirkətin adı
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Şirkətin adı"
+                    className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div className="mb-4 flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Vəzifə
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Vəzifə"
+                    className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
               </div>
-              <div className="mb-4 flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  End date
-                </label>
-                <div className="flex items-center gap-4">
+              <div className="flex flex-col lg:gap-8 lg:flex-row">
+                <div className="mb-4 flex-1 ">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Start date
+                  </label>
                   <input
                     type="date"
-                    id="endDate"
                     className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                    disabled={isPresent}
-                    placeholder="mm/dd/yyyy"
-                    value={isPresent ? "" : endDate} // Reset value when "Present" is checked
-                    onChange={(e) => setEndDate(e.target.value)}
                   />
-                  <div className="flex items-center">
+                </div>
+                <div className="mb-4 flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    End date
+                  </label>
+                  <div className="flex items-center gap-4">
                     <input
-                      type="checkbox"
-                      id="isPresent"
-                      className="mr-2"
-                      checked={isPresent}
-                      onChange={handlePresentCheckboxChange}
+                      type="date"
+                      id="endDate"
+                      className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                      disabled={isPresent}
+                      placeholder="mm/dd/yyyy"
+                      value={isPresent ? "" : endDate} // Reset value when "Present" is checked
+                      onChange={(e) => setEndDate(e.target.value)}
                     />
-                    <label
-                      htmlFor="isPresent"
-                      className="text-sm text-gray-700"
-                    >
-                      Present
-                    </label>
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="isPresent"
+                        className="mr-2"
+                        checked={isPresent}
+                        onChange={handlePresentCheckboxChange}
+                      />
+                      <label
+                        htmlFor="isPresent"
+                        className="text-sm text-gray-700"
+                      >
+                        Present
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="">
-            <div className="mb-4 flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                About work
-              </label>
-              <textarea
-                placeholder="Write information about work"
-                className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none resize-none h-32"
-              />
-            </div>
-            <div className="flex items-center justify-center lg:items-start lg:justify-end">
-              <button className="w-full lg:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition-all duration-200 ease-in-out">
-                Save
-              </button>
+            <div className="">
+              <div className="mb-4 flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  About work
+                </label>
+                <textarea
+                  placeholder="Write information about work"
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none resize-none h-32"
+                />
+              </div>
+              <div className="flex items-center justify-center lg:items-start lg:justify-end">
+                <button className="w-full lg:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition-all duration-200 ease-in-out">
+                  Save
+                </button>
+              </div>
             </div>
           </div>
         </Modal>

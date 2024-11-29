@@ -1,5 +1,6 @@
 import React from "react";
 import { assets } from "../assets/assets";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -9,37 +10,48 @@ const Footer = () => {
         <div>
           <img className="mb-5 w-40" src={assets.logo} alt="" />
           <p className="w-full md:w-2/3 text-gray-600 leading-6">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel hic sit
-            error, voluptas dolore numquam iusto ab sed maxime animi fuga veniam
-            distinctio! Distinctio dolorem obcaecati, sint quam dolor est?
+            Müəllim App, şagirdlər və valideynlər üçün müəllimlərlə əlaqə
+            qurmağı asanlaşdıran bir platformadır. Bizim məqsədimiz, təhsil
+            prosesini daha da səmərəli və rahat etməkdir. Müəllimlərin tapılması
+            və onlarla əlaqə qurulması heç vaxt bu qədər asan olmamışdı!
           </p>
         </div>
 
         {/* -----Center Section ----- */}
         <div>
-            <p className="text-xl font-medium mb-5">COMPANY</p>
-            <ul className="flex flex-col gap-2 text-gray-600">
-                <li>Home</li>
-                <li>About us</li>
-                <li>Contact us</li>
-                <li>Privacy Policy</li>
-            </ul>
+          <p className="text-xl font-medium mb-5">COMPANY</p>
+          <ul className="flex flex-col gap-2 text-gray-600">
+            <Link to="/" onClick={() => scrollTo(0, 0)}>
+              Home
+            </Link>
+            <Link to="/about" onClick={() => scrollTo(0, 0)}>
+              About us
+            </Link>
+            <Link to="/contact" onClick={() => scrollTo(0, 0)}>
+              Contact us
+            </Link>
+            <Link to="/" onClick={() => scrollTo(0, 0)}>
+              Privacy Policy
+            </Link>
+          </ul>
         </div>
 
         {/* -----Right Section ----- */}
         <div>
-            <p className="text-xl font-medium mb-5">GET IN TOUCH</p>
-            <ul className="flex flex-col gap-2 text-gray-600">
-                <li>+1-324-4354</li>
-                <li>nepeskarayel@gmail.com</li>
-            </ul>
+          <p className="text-xl font-medium mb-5">GET IN TOUCH</p>
+          <ul className="flex flex-col gap-2 text-gray-600">
+            <li>+1-324-4354</li>
+            <li>nepeskarayel@gmail.com</li>
+          </ul>
         </div>
       </div>
 
       {/* ------Copy Right Text------ */}
       <div>
         <hr />
-        <p className="py-5 text-sm text-center">Copyright 2024@ prescripto All right reserved</p>
+        <p className="py-5 text-sm text-center">
+          Copyright 2024@ prescripto All right reserved
+        </p>
       </div>
     </div>
   );
