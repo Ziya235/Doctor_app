@@ -10,6 +10,12 @@ import MyProfile from "./pages/MyProfile";
 import Appointment from "./pages/Appointment";
 import Footer from "./components/Footer";
 import GoogleMap from "./elaveler/post_map";
+import Register from "./pages/Register";
+import MyComponent from "./pages/Salam";
+import Modal from 'react-modal';
+
+// Set the app element (usually your root div)
+Modal.setAppElement('#root'); 
 
 const App = () => {
   return (
@@ -21,9 +27,11 @@ const App = () => {
           <Route path="/teachers" element={<Doctors />} />
           <Route path="/teachers/:speciality" element={<Doctors />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/map" element={<GoogleMap />} />
+          <Route path="/salam" element={<MyComponent />} />
           <Route path="/my-profile" element={<MyProfile />} />
           <Route path="/appointment/:docId" element={<Appointment />} />
         </Routes>

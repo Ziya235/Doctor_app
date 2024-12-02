@@ -1,50 +1,181 @@
-import React, { useState } from 'react'
+"use client";
+import React, { useState } from "react";
+import { FaArrowRight, FaEnvelope, FaLock } from "react-icons/fa";
+import Cookies from "js-cookie";
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const [isFocused, setIsFocused] = useState(false);
+  const [isFocused2, setIsFocused2] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
-  const [state,setState] = useState('Sign Up')
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({ email: "", password: "" });
 
-  const [email,setEmail] = useState("")
-  const [password,setPassword] = useState("")
-  const [name,setName] = useState("")
+  const handleFocus = () => setIsFocused(true);
+  const handleBlur = () => setIsFocused(false);
+  const handleFocus2 = () => setIsFocused2(true);
+  const handleBlur2 = () => setIsFocused2(false);
 
-  const onSubmitHandler = async (event) =>{
-    event.preventDefault()
+  const navigate = useNavigate();
 
-  }
+  const validateForm = () => {
+    let formErrors = {};
+    if (!email) {
+      formErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      formErrors.email = "Invalid email address";
+    }
+    if (!password) {
+      formErrors.password = "Password is required";
+    }
+    setErrors(formErrors);
+    return Object.keys(formErrors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    fetch("http://localhost:5000/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Email or password is wrong");
+        }
+        return response.json(); // Parse the response as JSON
+      })
+      .then((data) => {
+        const token = data.accessToken; // Access the token
+        const userId = data.user.id; // Access the user ID
+
+        // Store the token in cookies
+        Cookies.set("token", token, { expires: 7 }); // Expires in 7 days
+
+        // Optionally store the user ID in cookies or localStorage
+        Cookies.set("userId", userId, { expires: 7 });
+
+        console.log("User ID:", userId); // Log the user ID for debugging
+
+        // Navigate to the home page
+        navigate("/");
+      })
+      .catch(() => {
+        // toast.error("Username or password is wrong");
+        console.log("salam");
+        
+      });
+  };
 
   return (
-    <form onSubmit={onSubmitHandler} className='min-h-[80vh] flex items-center'>
-        <div className='flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 rounded-xl text-zinc-600 text-sm shadow-lg'>
-          <p className='text-2xl font-semibold'>{state === "Sign Up" ? "Create Account" : "Login"}</p>
-        
-          {
-            state === "Sign Up" &&
-            <div className='w-full'>
-            <p>Full Name</p>
-            <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="text" onChange={(e)=>setName(e.target.value)} value={name} />
-          </div>
-          }
-         
-          <div className='w-full'>
-            <p>Email</p>
-            <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="email" onChange={(e)=>setEmail(e.target.value)} value={email} />
-          </div>
-          <div className='w-full'> 
-            <p>Password</p>
-            <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="password" onChange={(e)=>setPassword(e.target.value)} value={password} />
-          </div>
-          <button className='bg-primary text-white w-full py-2 rounded-md text-base '>{state === "Sign Up" ? "Create Account" : "Login"}</button>
-          {
-            state === "Sign Up" 
-            ? <p>Already have an account? <span onClick={()=>setState("Login")} className='text-primary underline cursor-pointer'>Login here</span></p> 
-            : <p>Create an new account? <span onClick={()=>setState("Sign Up")} className='text-primary underline cursor-pointer'>Click here</span></p>
-          }
-        </div>
-    </form>
-        
-    
-  )
-}
+    <div className="bg-white shadow-md w-4/5 lg:w-1/2 mx-auto pb-8">
+      <div className="flex justify-start  border-blue-500">
+        <p className="py-4 px-16 text-blue-500 text-base border-b-2 border-blue-500 cursor-pointer hover:text-black">
+          Daxil ol
+        </p>
+        <p className="py-4 px-16 text-gray-500 cursor-pointer">
+          <Link to="/register" className="hover:text-black">
+            Qeydiyyat
+          </Link>
+        </p>
+      </div>
 
-export default Login
+      <div className="flex flex-col items-center mt-8 space-y-2">
+        <h1 className="font-bold text-lg lg:text-2xl">
+          Sizi yenidən görməyə şadıq!
+        </h1>
+        <p className="text-sm lg:text-base text-gray-600">
+          Hesabınız yoxdur?{" "}
+          <Link to="/register" className="text-blue-500 hover:underline">
+            Qeydiyyatdan keçin!
+          </Link>
+        </p>
+      </div>
+
+      <div className="w-4/5 lg:w-3/5 mx-auto mt-6">
+        <form onSubmit={handleSubmit}>
+          <div className=" relative">
+            <div
+              className={`absolute inset-y-0 left-0 w-10 h-full flex items-center justify-center bg-gray-200 rounded ${
+                isFocused ? "text-blue-500" : "text-gray-500"
+              }`}
+            >
+              <FaEnvelope />
+            </div>
+            <input
+              type="email"
+              name="email"
+              placeholder="example@gmail.com"
+              className="pl-12 pr-4 py-3 w-full border rounded focus:ring focus:ring-blue-500 focus:outline-none"
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+          )}
+
+          <div className="mt-6 relative">
+            <div
+              className={`absolute inset-y-0 left-0 w-10 h-full flex items-center justify-center bg-gray-200 rounded ${
+                isFocused2 ? "text-blue-500" : "text-gray-500"
+              }`}
+            >
+              <FaLock />
+            </div>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              className="pl-12 pr-4 py-3 w-full border rounded focus:ring focus:ring-blue-500 focus:outline-none"
+              onFocus={handleFocus2}
+              onBlur={handleBlur2}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          {errors.password && (
+            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+          )}
+          {/* 
+          <div className=" mb-6">
+            <a
+              href="/forgotPassword"
+              className="text-sm text-blue-500 hover:underline"
+            >
+              Parolu unutmusan?
+            </a>
+          </div> */}
+
+          <div
+            className="mb-4 mt-6"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <button
+              type="submit"
+              className={`w-full py-3 bg-blue-500 text-white rounded ${
+                isHovered ? "hover:bg-blue-600" : ""
+              } flex justify-center items-center`}
+            >
+              Login
+              {isHovered && <FaArrowRight className="ml-2" />}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default Login;

@@ -11,11 +11,12 @@ import { MdAdd } from "react-icons/md";
 import { MdWork } from "react-icons/md";
 import { AiOutlineFileText } from "react-icons/ai";
 import ProfileMap from "../components/Profile_map";
+import Cookies from "js-cookie";
 
 const MyProfile = () => {
-  const { doctors, currencySymbol } = useContext(AppContext);
+  const { currencySymbol } = useContext(AppContext);
 
-  const [docInfo, setDocInfo] = useState(doctors[3]);
+  // const [docInfo, setDocInfo] = useState(doctors[5]);
 
   const [isPresent, setIsPresent] = useState(false);
   const [endDate, setEndDate] = useState("");
@@ -27,7 +28,15 @@ const MyProfile = () => {
     }
   };
 
+  const [name, setName] = useState("");
+  const [surname, setSurname] = useState("");
+  const [price, setPrice] = useState();
+  const [speciality, setSpeciality] = useState();
+  const [experience, setExperience] = useState();
+  const [about_you, setAbout_you] = useState();
+  const [birthOfDate, setBirthOfDate] = useState();
   const [file, setFile] = useState(null);
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -36,7 +45,6 @@ const MyProfile = () => {
     }
   };
 
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [valid, setValid] = useState(true);
 
   const handleChange = (value) => {
@@ -47,6 +55,8 @@ const MyProfile = () => {
   const [openAddEditModal, setOpenAddEditModal] = useState(false);
   const [openAddEditModal_edu, setOpenAddEditModal_edu] = useState(false);
   const [openAddEditModal_exp, setOpenAddEditModal_exp] = useState(false);
+
+  const [profileData, setProfilData] = useState(null);
 
   useEffect(() => {
     // Check if any modal is open
@@ -60,6 +70,95 @@ const MyProfile = () => {
       document.body.style.overflow = ""; // Clean up on unmount
     };
   }, [openAddEditModal, openAddEditModal_edu, openAddEditModal_exp]);
+
+  const userId = Cookies.get("userId");
+  const token = Cookies.get("token");
+  console.log(userId);
+
+  useEffect(() => {
+    fetch(`http://localhost:5000/get-user/${userId}`) // Add 'http://' to make it a valid URL
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json(); // Parse JSON data
+      })
+      .then((data) => {
+        setProfilData(data);
+        setName(data.user.name);
+        setSurname(data.user.surname);
+        setPrice(data.user.price);
+        setAbout_you(data.user.about);
+        setSpeciality(data.user.speciality);
+        setExperience(data.user.experience);
+        setPhoneNumber(data.user.phone);
+        const formattedDate = data.user.dateOfBirth
+          ? new Date(data.user.dateOfBirth).toISOString().split("T")[0]
+          : "";
+
+        console.log("Fetched date:", data.user.dateOfBirth);
+        console.log("Formatted date:", formattedDate);
+
+        setBirthOfDate(formattedDate);
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      });
+  }, []);
+
+  const handleSaveProfilData = async () => {
+    // Ensure date is in a valid format
+    const formattedDate = birthOfDate
+      ? new Date(birthOfDate).toISOString() // Use full ISO string
+      : null;
+
+    const updatedData = {
+      name,
+      surname,
+      price,
+      about: about_you,
+      speciality,
+      experience,
+      phone: phoneNumber,
+      dateOfBirth: formattedDate, // Make sure this matches the backend field name
+    };
+
+    try {
+      const response = await fetch(`http://localhost:5000/update-profile`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      // Debug logging
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Server error response:", errorText);
+        throw new Error("Failed to update user details");
+      }
+
+      const result = await response.json();
+      console.log("User updated successfully:", result);
+
+      alert("User details updated successfully!");
+    } catch (error) {
+      console.error("There was a problem with the update operation:", error);
+      alert("Failed to update user details");
+    }
+  };
+
+  const formatPhoneNumber = (phone) => {
+    if (!phone || typeof phone !== "string") return phone; // Handle invalid input
+
+    // Use regex to split the number and format it
+    const match = phone.match(/^(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})$/);
+    if (!match) return phone; // Return the original phone number if it doesn't match the expected format
+
+    return `${match[1]}-${match[2]}-${match[3]}-${match[4]}-${match[5]}`;
+  };
 
   const experiences = [
     {
@@ -119,30 +218,71 @@ const MyProfile = () => {
     },
   ];
 
+  const calculateAge = (dateString) => {
+    if (!dateString) return "Age not specified";
+
+    const birthDate = new Date(dateString);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  };
+
+  const formatDateOfBirth = (dateString) => {
+    if (!dateString) return "Not specified";
+
+    const date = new Date(dateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) return "Invalid Date";
+
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
   return (
     <>
-      {docInfo && (
+      {profileData && (
         <div>
           {/* ------ Doctor Details-------- */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div>
-              <img
-                className="bg-primary w-full sm:w-72 h-72 sm:h-80 rounded-lg  object-cover"
-                src={docInfo.image}
-                alt=""
-              />
+              {profileData.user.image ? (
+                <img
+                  className="bg-primary w-full sm:w-72 h-72 sm:h-80 rounded-lg  object-cover"
+                  src={profileData.image}
+                  alt=""
+                />
+              ) : (
+                <img
+                  src={assets.noAvatar}
+                  alt="Placeholder"
+                  className="bg-primary w-full sm:w-72 h-72 sm:h-80 rounded-lg  object-cover"
+                />
+              )}
             </div>
 
             <div className="flex-1 border border-gray-400 rounded-lg px-8 py-8 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0 pb-[-4rem]  relative">
               {/* ---------Doc Info: name, degree, experience--------- */}
               <p className="flex items-center gap-2 text-2xl font-medium text-gray-900">
-                {docInfo.name}
+                {profileData.user.name} {profileData.user.surname}
                 <img src={assets.verified_icon} alt="" />
               </p>
               <div className="flex items-center gap-2 text-sm mt-1 text-gray-600">
-                <p>{docInfo.speciality} teacher</p>
+                <p>{profileData.user.speciality} teacher</p>
                 <button className="py-0.5 px-2 border text-xs rounded-full ">
-                  {docInfo.experience}
+                  {profileData.user.experience}
                 </button>
               </div>
 
@@ -153,21 +293,38 @@ const MyProfile = () => {
                   <img src={assets.info_icon} alt="" />
                 </p>
                 <p className="text-sm text-gray-500 max-w-[700px] mt-1">
-                  {docInfo.about}
+                  {profileData.user.about}
                 </p>
               </div>
 
               <p className="text-gray-500 font-medium mt-4">
                 Price :{" "}
                 <span className="text-gray-600">
-                  {currencySymbol} {docInfo.fees}
+                  {currencySymbol} {profileData.user.price}
                 </span>
               </p>
 
               <div className="mb-12">
                 <p className="text-gray-500 font-medium mt-4">
                   Phone :{" "}
-                  <span className="text-gray-600">994-55-300-50-50</span>
+                  <span className="text-gray-600">
+                    {formatPhoneNumber(profileData.user.phone)}
+                  </span>
+                </p>
+                <p className="text-gray-500 font-medium mt-4 flex items-center space-x-2">
+                  <span className="text-gray-700 font-bold">
+                    Date of Birth:
+                  </span>
+                  <span className="text-gray-600">
+                    {formatDateOfBirth(profileData.user.dateOfBirth)}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    (Age:{" "}
+                    <span className="text-blue-600 font-semibold">
+                      {calculateAge(profileData.user.dateOfBirth)}
+                    </span>
+                    )
+                  </span>
                 </p>
 
                 <button
@@ -182,194 +339,219 @@ const MyProfile = () => {
         </div>
       )}
 
-     
-        <Modal
-          isOpen={openAddEditModal}
-          size={"full"}
-          style={{
-            overlay: {
-              backgroundColor: "rgba(0,0,0,0.5)",
-              zIndex: 60, // Higher z-index than the header
-            },
-          }}
-          className="fixed inset-0 z-50 overflow-y-auto"
-          contentLabel=""
-        >
-          <div className="add-notes-modal w-full max-w-4xl bg-white rounded-lg mx-auto mt-10 p-8 shadow-lg relative">
-        {/* Close Button */}
-        <button
-          onClick={() => setOpenAddEditModal(false)}
-          className="absolute top-8 right-6 bg-gray-200 hover:bg-gray-300 text-gray-600 px-3 py-2 rounded-full focus:outline-none"
-        >
-          ✕
-        </button>
-
-        {/* Image Upload Section */}
-        <div className="flex items-center gap-4 mb-8">
-          <label
-            htmlFor="file-upload"
-            style={{
-              display: "inline-block",
-              cursor: "pointer",
-              width: "80px",
-              height: "80px",
-              borderRadius: "50%",
-              background: file
-                ? `url(${file}) center/cover no-repeat`
-                : "rgba(240, 240, 240, 1)",
-            }}
-            className="flex justify-center items-center"
+      <Modal
+        isOpen={openAddEditModal}
+        size={"full"}
+        style={{
+          overlay: {
+            backgroundColor: "rgba(0,0,0,0.5)",
+            zIndex: 60, // Higher z-index than the header
+          },
+        }}
+        className="fixed inset-0 z-50 overflow-y-auto"
+        contentLabel=""
+      >
+        <div className="add-notes-modal w-full max-w-4xl bg-white rounded-lg mx-auto mt-10 p-8 shadow-lg relative">
+          {/* Close Button */}
+          <button
+            onClick={() => setOpenAddEditModal(false)}
+            className="absolute top-8 right-6 bg-gray-200 hover:bg-gray-300 text-gray-600 px-3 py-2 rounded-full focus:outline-none"
           >
-            {!file && (
-              <img
-                src={assets.noAvatar}
-                alt="Placeholder"
-                className="rounded-full w-full h-full object-cover"
-              />
-            )}
-          </label>
-          <input
-            id="file-upload"
-            type="file"
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-          />
-          <div>
-            <p className="text-lg font-semibold text-gray-800">Upload Your</p>
-            <p className="text-lg font-semibold text-gray-800">Image</p>
-          </div>
-        </div>
-
-        {/* Form Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column */}
-          <div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Your Name
-              </label>
-              <input
-                type="text"
-                placeholder="Name"
-                className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Your Surname
-              </label>
-              <input
-                type="text"
-                placeholder="Surname"
-                className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Fees
-              </label>
-              <input
-                type="number"
-                placeholder="Fees"
-                className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Experience
-              </label>
-              <select
-                className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                defaultValue=""
-              >
-                <option value="" disabled hidden>
-                  Choose your experience
-                </option>
-                <option value="1years">1 Years</option>
-                <option value="2years">2 Years</option>
-                <option value="3years">3 Years</option>
-                <option value="4years">4 Years</option>
-                <option value="5years">5 Years</option>
-                <option value="6years">6 Years</option>
-                <option value="7years">7 Years</option>
-              </select>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Age
-              </label>
-              <input
-                type="date"
-                className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          {/* Right Column */}
-          <div>
-            <div className="w-full mb-4">
-              <label
-                htmlFor="phone-number"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Phone
-              </label>
-              <PhoneInput
-                id="phone-number"
-                country="az"
-                value={phoneNumber}
-                placeholder="+111 (11) 111-11-11"
-                onChange={handleChange}
-                inputProps={{
-                  required: true,
-                }}
-                inputStyle={{
-                  height: "48px",
-                  width: "100%",
-                  borderRadius: "0.3rem",
-                }}
-                buttonStyle={{
-                  background: "#fff",
-                  borderRight: "none",
-                }}
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Subject
-              </label>
-              <select
-                className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                defaultValue=""
-              >
-                <option value="" disabled hidden>
-                  Choose your speciality
-                </option>
-                <option value="Math">Math</option>
-                <option value="Physics">Physics</option>
-                <option value="Biology">Biology</option>
-                <option value="Chemistry">Chemistry</option>
-              </select>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                About you
-              </label>
-              <textarea
-                placeholder="Write information about you"
-                rows={6}
-                className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-          </div>
-        </div>
-        {/* Save button */}
-        <div className="flex justify-center">
-          <button className="bg-blue-500 text-white font-semibold px-6 py-2 mt-3 rounded-md shadow-md hover:bg-blue-600 ">
-            Save
+            ✕
           </button>
-        </div>
+
+          {/* Image Upload Section */}
+          <div className="flex items-center gap-4 mb-8">
+            <label
+              htmlFor="file-upload"
+              style={{
+                display: "inline-block",
+                cursor: "pointer",
+                width: "80px",
+                height: "80px",
+                borderRadius: "50%",
+                background: file
+                  ? `url(${file}) center/cover no-repeat`
+                  : "rgba(240, 240, 240, 1)",
+              }}
+              className="flex justify-center items-center"
+            >
+              {!file && (
+                <img
+                  src={assets.noAvatar}
+                  alt="Placeholder"
+                  className="rounded-full w-full h-full object-cover"
+                />
+              )}
+            </label>
+            <input
+              id="file-upload"
+              type="file"
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+            />
+            <div>
+              <p className="text-lg font-semibold text-gray-800">Upload Your</p>
+              <p className="text-lg font-semibold text-gray-800">Image</p>
+            </div>
+          </div>
+
+          {/* Form Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Column */}
+            <div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Your Name
+                </label>
+                <input
+                  onChange={(e) => {
+                    setName(e.target.value);
+                  }}
+                  value={name}
+                  type="text"
+                  placeholder="Name"
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Your Surname
+                </label>
+                <input
+                  onChange={(e) => {
+                    setSurname(e.target.value);
+                  }}
+                  value={surname}
+                  type="text"
+                  placeholder="Surname"
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Fees
+                </label>
+                <input
+                  onChange={(e) => {
+                    setPrice(e.target.value);
+                  }}
+                  value={price}
+                  type="number"
+                  placeholder="Fees"
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Experience
+                </label>
+                <select
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                  defaultValue={experience} // Use value instead of defaultValue
+                  onChange={(e) => setExperience(e.target.value)}
+                >
+                  <option value="" disabled hidden>
+                    Choose your experience
+                  </option>
+                  <option value="1years">1 Years</option>
+                  <option value="2years">2 Years</option>
+                  <option value="3years">3 Years</option>
+                  <option value="4years">4 Years</option>
+                  <option value="5years">5 Years</option>
+                  <option value="6years">6 Years</option>
+                  <option value="7years">7 Years</option>
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Age
+                </label>
+                <input
+                  value={birthOfDate}
+                  onChange={(e) => {
+                    const selectedDate = e.target.value;
+                    console.log("Selected date:", selectedDate);
+                    setBirthOfDate(selectedDate);
+                  }}
+                  type="date"
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Right Column */}
+            <div>
+              <div className="w-full mb-4">
+                <label
+                  htmlFor="phone-number"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Phone
+                </label>
+                <PhoneInput
+                  id="phone-number"
+                  country="az"
+                  value={phoneNumber}
+                  placeholder="+111 (11) 111-11-11"
+                  onChange={(phone) => setPhoneNumber(phone)}
+                  inputProps={{
+                    required: true,
+                  }}
+                  inputStyle={{
+                    height: "48px",
+                    width: "100%",
+                    borderRadius: "0.3rem",
+                  }}
+                  buttonStyle={{
+                    background: "#fff",
+                    borderRight: "none",
+                  }}
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Subject
+                </label>
+                <select
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                  defaultValue={speciality ? speciality : ""}
+                >
+                  <option value="" disabled hidden>
+                    Choose your speciality
+                  </option>
+                  <option value="Math">Math</option>
+                  <option value="Physics">Physics</option>
+                  <option value="Biology">Biology</option>
+                  <option value="Chemistry">Chemistry</option>
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  About you
+                </label>
+                <textarea
+                  onChange={(e) => {
+                    setAbout_you(e.target.value);
+                  }}
+                  value={about_you}
+                  placeholder="Write information about you"
+                  rows={6}
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+          {/* Save button */}
+          <div className="flex justify-center">
+            <button
+              onClick={() => handleSaveProfilData()}
+              className="bg-blue-500 text-white font-semibold px-6 py-2 mt-3 rounded-md shadow-md hover:bg-blue-600 "
+            >
+              Save
+            </button>
+          </div>
         </div>
       </Modal>
 

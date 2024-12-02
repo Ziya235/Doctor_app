@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const Navbar = () => {
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
@@ -25,6 +26,7 @@ const Navbar = () => {
   const mobileMenuRef = useRef(null);
 
   const navigate = useNavigate();
+
   const languages = [
     { code: "Az", name: "Azərbaycan" },
     { code: "En", name: "English" },
@@ -64,15 +66,19 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
+    Cookies.remove("token");
+    setIsProfileOpen(false);
     console.log("Logging out");
   };
+
+  const token = Cookies.get("token");
 
   const NavLinks = () => (
     <>
       <Link
         to="/"
         className="flex items-center text-gray-700 hover:text-blue-600 md:mb-0"
-        onClick={()=>setIsMobileMenuOpen(false)}
+        onClick={() => setIsMobileMenuOpen(false)}
       >
         <Home className="mr-2" size={20} />
         Home
@@ -80,8 +86,7 @@ const Navbar = () => {
       <Link
         to="/teachers"
         className="flex items-center text-gray-700 hover:text-blue-600 mb-4 md:mb-0"
-        onClick={()=>setIsMobileMenuOpen(false)}
-
+        onClick={() => setIsMobileMenuOpen(false)}
       >
         <User className="mr-2" size={20} />
         Teachers
@@ -89,8 +94,7 @@ const Navbar = () => {
       <Link
         to="/about"
         className="flex items-center text-gray-700 hover:text-blue-600 mb-4 md:mb-0"
-        onClick={()=>setIsMobileMenuOpen(false)}
-
+        onClick={() => setIsMobileMenuOpen(false)}
       >
         <BookOpen className="mr-2" size={20} />
         About
@@ -98,13 +102,11 @@ const Navbar = () => {
       <Link
         to="/contact"
         className="flex items-center text-gray-700 hover:text-blue-600 mb-4 md:mb-0"
-        onClick={()=>setIsMobileMenuOpen(false)}
-
+        onClick={() => setIsMobileMenuOpen(false)}
       >
         <Mail className="mr-2" size={20} />
         Contact
       </Link>
-
     </>
   );
 
@@ -162,35 +164,40 @@ const Navbar = () => {
             </div>
 
             {/* Profile Dropdown */}
-            <div className="relative" ref={profileRef}>
-              <UserCircle2
-                size={40}
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="text-gray-600 hover:text-blue-600 cursor-pointer"
-              />
+            {token ? (
+              <div className="relative" ref={profileRef}>
+                <UserCircle2
+                  size={40}
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="text-gray-600 hover:text-blue-600 cursor-pointer"
+                />
 
-              {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
-                  <div
-                    onClick={() => {
-                      navigate("my-profile"),
-                      setIsProfileOpen(false)
-                    }}
-                    className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
-                  >
-                    <UserIcon className="mr-2" size={16} />
-                    My Profile
+                {isProfileOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
+                    <div
+                      onClick={() => {
+                        navigate("my-profile"), setIsProfileOpen(false);
+                      }}
+                      className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
+                    >
+                      <UserIcon className="mr-2" size={16} />
+                      My Profile
+                    </div>
+                    <div
+                      onClick={() => handleLogout()}
+                      className="flex items-center p-2 hover:bg-gray-100 cursor-pointer text-red-500"
+                    >
+                      <LogOutIcon className="mr-2" size={16} />
+                      Logout
+                    </div>
                   </div>
-                  <div
-                    onClick={handleLogout}
-                    className="flex items-center p-2 hover:bg-gray-100 cursor-pointer text-red-500"
-                  >
-                    <LogOutIcon className="mr-2" size={16} />
-                    Logout
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            ) : (
+              <button  onClick={() => navigate("/login")} className="px-6 py-3 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 focus:ring focus:ring-blue-300 focus:outline-none transition">
+                Daxil ol
+              </button>
+            )}
 
             {/* Mobile Menu Toggle */}
             <button
