@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
-import {assets} from "../assets/assets"
+import { assets } from "../assets/assets";
 
 const TopDoctors = () => {
   const navigate = useNavigate("");
@@ -36,24 +36,25 @@ const TopDoctors = () => {
   }, []);
 
   const { doctors } = useContext(AppContext);
+
   return (
     <div className="flex flex-col items-center gap-4 my-16 text-gray-900 md:mx-10">
       <h1 className="text-3xl font-medium">Top Teachers</h1>
       <p className="sm:w-1/3 text-center text-sm">
         Simply browse through our extensive list of trusted teachers.
       </p>
-      <div className="w-full grid grid-cols-auto gap-4 pt-5 gap-y-6 px-3 sm:px-0 ">
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-5 gap-y-6 px-3 sm:px-0">
         {allTeacher &&
-          allTeacher.map((item, index) => (
+          allTeacher.slice(0,8).map((item, index) => (
             <div
               onClick={() => navigate(`/appointment/${item._id}`)}
               key={index}
               className="border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500"
             >
-              <div className="relative w-full h-48 bg-blue-50">
+              <div className="relative w-full h-64 bg-blue-50">
                 {item.profileImageUrl ? (
                   <img
-                    className="bg-primary w-full sm:w-72 h-60 sm:h-44 rounded-lg object-cover"
+                    className="absolute inset-0 w-full h-full object-cover rounded-lg"
                     src={item.profileImageUrl}
                     alt={`${item.name}'s profile`}
                     onError={(e) => {
@@ -65,7 +66,7 @@ const TopDoctors = () => {
                   <img
                     src={assets.noAvatar}
                     alt="Placeholder"
-                    className="bg-primary w-full sm:w-72 h-72 sm:h-44 rounded-lg object-cover"
+                    className="absolute inset-0 w-full h-full object-cover rounded-lg"
                   />
                 )}
               </div>
@@ -75,9 +76,7 @@ const TopDoctors = () => {
                   <p>Available</p>
                 </div>
                 <p className="text-gray-900 text-lg font-medium">{item.name}</p>
-                <p className="text-gray-600 text-sm">
-                  {item.speciality} teacher
-                </p>
+                <p className="text-gray-600 text-sm">{item.speciality} teacher</p>
               </div>
             </div>
           ))}

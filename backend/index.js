@@ -164,6 +164,7 @@ app.post("/create-account", upload.single("profileImage"), async (req, res) => {
         ...user.toObject(),
         userId: user.userId,
         profileImage: user.profileImage || null,
+         teacher_id: user._id  
       },
       accessToken,
       message: "Registration successful",

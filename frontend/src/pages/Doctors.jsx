@@ -69,7 +69,7 @@ const Doctors = () => {
       <p className="text-gray-600">Browse through the teacher specialists</p>
       <div className="flex flex-col sm:flex-row items-start gap-5 mt-5">
         {/* Large screen: display <p> tags, hide <select> */}
-        <div className={`flex-col gap-4 text-sm text-gray-600 sm:flex`}>
+        <div className={`flex-col gap-4 text-sm text-gray-600 sm:flex sm:block hidden`}>
           <p onClick={() => navigate("/teachers")} className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${!speciality || speciality === "all" ? "bg-indigo-100 text-black" : ""}`}>All</p>
           {Object.entries(specialityMapping).map(([displayName, value]) => (
             <p 
@@ -111,10 +111,10 @@ const Doctors = () => {
               key={index}
               className="border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500"
             >
-              <div className="relative w-full h-48 bg-blue-50">
+             <div className="relative w-full h-64 bg-blue-50">
                 {item.profileImageUrl ? (
                   <img
-                    className="bg-primary w-full sm:w-72 h-60 sm:h-44 rounded-lg object-cover"
+                    className="absolute inset-0 w-full h-full object-cover rounded-lg"
                     src={item.profileImageUrl}
                     alt={`${item.name}'s profile`}
                     onError={(e) => {
@@ -126,7 +126,7 @@ const Doctors = () => {
                   <img
                     src={assets.noAvatar}
                     alt="Placeholder"
-                    className="bg-primary w-full sm:w-72 h-72 sm:h-44 rounded-lg object-cover"
+                    className="absolute inset-0 w-full h-full object-cover rounded-lg"
                   />
                 )}
               </div>

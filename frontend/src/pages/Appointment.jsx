@@ -56,63 +56,49 @@ const Appointment = () => {
     } catch (error) {}
   }, []);
 
-  const experiences = [
-    {
-      id: 1,
-      companyName: "Harvard University",
-      title: "Bachelor of Science",
-      startingDate: "09/01/2015",
-      endDate: "06/01/2019",
-      description:
-        "Studied computer science with a focus on AI and machine learning. Studied computer science with a focus on AI and machine learning.Studied computer science with a focus on AI and machine learning.Studied computer science with a focus on AI and machine learning.Studied computer science with a focus on AI and machine learning.",
-    },
-    {
-      id: 2,
-      companyName: "Stanford University",
-      title: "Master of Science",
-      startingDate: "09/01/2020",
-      endDate: "06/01/2022",
-      description: "Specialized in software engineering and system design.",
-    },
-    {
-      id: 3,
-      companyName: "MIT",
-      title: "PhD in Data Science",
-      startingDate: "09/01/2022",
-      endDate: "Present",
-      description: "Researching advanced algorithms for big data processing.",
-    },
-  ];
+  const formatDateOfBirth = (dateString) => {
+    if (!dateString) return "Not specified";
 
-  const workExperiences = [
-    {
-      id: 1,
-      companyName: "Google",
-      title: "Software Engineer",
-      startingDate: "08/01/2019",
-      endDate: "03/01/2022",
-      description:
-        "Developed scalable backend systems for Google Cloud. Led a team in creating an AI-powered search feature that improved search efficiency by 30%. Collaborated across teams to enhance performance of distributed systems.",
-    },
-    {
-      id: 2,
-      companyName: "Amazon",
-      title: "Senior Software Developer",
-      startingDate: "04/01/2022",
-      endDate: "Present",
-      description:
-        "Architected and implemented microservices for Amazon Web Services (AWS). Designed and launched features for high-volume e-commerce platforms, improving user retention by 25%. Mentored junior developers on best practices and coding standards.",
-    },
-    {
-      id: 3,
-      companyName: "Facebook",
-      title: "Software Engineer Intern",
-      startingDate: "06/01/2018",
-      endDate: "08/01/2018",
-      description:
-        "Built tools for automating data analysis for Facebook Ads. Optimized performance of existing algorithms, reducing processing time by 15%. Presented findings and improvements to senior management.",
-    },
-  ];
+    const date = new Date(dateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) return "Invalid Date";
+
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const calculateAge = (dateString) => {
+    if (!dateString) return "Age not specified";
+
+    const birthDate = new Date(dateString);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  };
+
+  const formatPhoneNumber = (phone) => {
+    if (!phone || typeof phone !== "string") return phone; // Handle invalid input
+
+    // Use regex to split the number and format it
+    const match = phone.match(/^(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})$/);
+    if (!match) return phone; // Return the original phone number if it doesn't match the expected format
+
+    return `${match[1]}-${match[2]}-${match[3]}-${match[4]}-${match[5]}`;
+  };
 
   useEffect(() => {
     const fetchTeacherInfo = async () => {
@@ -169,7 +155,7 @@ const Appointment = () => {
           <div className="flex flex-col sm:flex-row gap-4">
             <div>
               <img
-                className="bg-primary w-full sm:w-72 h-72 sm:h-80 rounded-lg object-cover"
+                className="bg-primary w-full sm:w-72 h-72  rounded-lg object-cover"
                 src={docInfo.profileImageUrl || assets.noAvatar}
                 alt={docInfo.name}
                 onError={(e) => {
@@ -179,10 +165,10 @@ const Appointment = () => {
               />
             </div>
 
-            <div className="flex-1 border border-gray-400 rounded-lg p-8 py-7 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0">
+            <div className="flex-1 border border-gray-400 rounded-lg p-8 py-4 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0">
               {/* Doc Info: name, degree, experience */}
               <p className="flex items-center gap-2 text-2xl font-medium text-gray-900">
-                {docInfo.name}
+                {docInfo.name} {docInfo.surname}
                 <img src={assets.verified_icon} alt="Verified" />
               </p>
               <div className="flex items-center gap-2 text-sm mt-1 text-gray-600">
@@ -206,15 +192,34 @@ const Appointment = () => {
               <p className="text-gray-500 font-medium mt-4">
                 Price:{" "}
                 <span className="text-gray-600">
-                  {docInfo.fees ? `₼ ${docInfo.fees}` : "Not specified"}
+                  {docInfo.price ? `₼ ${docInfo.price}` : "Not specified"}
                 </span>
               </p>
-              <p className="text-gray-500 font-medium mt-4">
-                Phone:{" "}
-                <span className="text-gray-600">
-                  {docInfo.phone || "994-55-300-50-50"}
-                </span>
-              </p>
+              <div>
+                <p className="text-gray-500 font-medium mt-4">
+                  Phone :{" "}
+                  <span className="text-gray-600">
+                    {formatPhoneNumber(docInfo.phone)}
+                  </span>
+                </p>
+                <div className="flex justify-between">
+                  <p className="text-gray-500 font-medium mt-4 flex items-center space-x-2">
+                    <span className="text-gray-700 font-bold">
+                      Date of Birth:
+                    </span>
+                    <span className="text-gray-600">
+                      {formatDateOfBirth(docInfo.dateOfBirth)}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      (Age:{" "}
+                      <span className="text-blue-600 font-semibold">
+                        {calculateAge(docInfo.dateOfBirth)}
+                      </span>
+                      )
+                    </span>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -233,7 +238,7 @@ const Appointment = () => {
         {/* Card Body */}
         <div className="p-6">
           <div className="flex flex-col items-center">
-            {universityData &&
+            {universityData ? (
               universityData.universities.map((item) => (
                 <div key={item.id} className="w-full mb-6">
                   <div className="flex justify-between">
@@ -258,13 +263,20 @@ const Appointment = () => {
                                 : "present"}
                             </p>
                           </div>
-                          <p className="text-gray-600">{item.about_university}</p>
+                          <p className="text-gray-600">
+                            {item.about_university}
+                          </p>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              ))}
+              ))
+            ) : (
+              <h1 className="text-2xl font-bold text-center text-gray-800 mt-10 mb-6 px-4 sm:px-8 lg:px-16">
+                No Education
+              </h1>
+            )}
           </div>
         </div>
       </div>
@@ -282,37 +294,45 @@ const Appointment = () => {
         {/* Card Body */}
         <div className="p-6">
           <div className="flex flex-col items-center">
-            {experienceData && experienceData.experiences.map((item) => (
-              <div key={item.id} className="w-full mb-6">
-                <div className="flex justify-between">
-                  <div className="pt-10">
-                    <div className="flex gap-6 items-center ml-5">
-                      {/* Icon Box */}
-                      <div>
-                        <MdWork className="text-blue-600 text-4xl" />
-                      </div>
+            {experienceData ? (
+              experienceData.experiences.map((item) => (
+                <div key={item.id} className="w-full mb-6">
+                  <div className="flex justify-between">
+                    <div className="pt-10">
+                      <div className="flex gap-6 items-center ml-5">
+                        {/* Icon Box */}
+                        <div>
+                          <MdWork className="text-blue-600 text-4xl" />
+                        </div>
 
-                      {/* Experience Details */}
-                      <div className="flex flex-col gap-1">
-                        <p className="font-bold text-lg">
-                          {item.companyName} ---- {item.position}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <GoClock />
-                          <p className="text-sm text-gray-600">
+                        {/* Experience Details */}
+                        <div className="flex flex-col gap-1">
+                          <p className="font-bold text-lg">
+                            {item.company_name} ---- {item.position}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <GoClock />
+                            <p className="text-sm text-gray-600">
                               {new Date(item.startDate).toLocaleDateString()} -{" "}
                               {item.endDate
                                 ? new Date(item.endDate).toLocaleDateString()
                                 : "present"}
                             </p>
+                          </div>
+                          <p className="text-gray-600">
+                            {item.about_experience}
+                          </p>
                         </div>
-                        <p className="text-gray-600">{item.about_experience}</p>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <h1 className="text-2xl font-bold text-center text-gray-800 mt-10 mb-6 px-4 sm:px-8 lg:px-16">
+                No Education
+              </h1>
+            )}
           </div>
         </div>
       </div>

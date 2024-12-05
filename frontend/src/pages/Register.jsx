@@ -28,7 +28,7 @@ const Register = () => {
   const handleFocus4 = () => setIsFocused4(true);
   const handleBlur4 = () => setIsFocused4(false);
 
-  const navigate= useNavigate()
+  const navigate = useNavigate();
   const validateForm = () => {
     let formErrors = {};
     if (!name) {
@@ -58,21 +58,33 @@ const Register = () => {
     }
 
     console.log(speciality);
-    
 
     fetch("http://localhost:5000/create-account", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, surname,speciality, email, password }),
+      body: JSON.stringify({ name, surname, speciality, email, password }),
     })
       .then((response) => {
         if (!response.ok) throw new Error("Email or password is wrong");
-        return response.text();
+        return response.json(); // Parse the response as JSON
       })
-      .then((token) => {
-        Cookies.set("token", token, { expires: 7 }); // Expires in 7 days
-        navigate("/")
+      .then((data) => {
+        const token = data.accessToken; // Access the token
+        const userId = data.user.userId;
 
+        const teacherId = data.user.teacher_id; // Access the user ID
+
+        // Store the token in cookies
+        Cookies.set("token", token, { expires: 7 }); // Expires in 7 days
+
+        // Optionally store the user ID in cookies or localStorage
+        Cookies.set("userId", userId, { expires: 7 });
+        Cookies.set("teacherId", teacherId, { expires: 7 });
+
+        console.log("User ID:", data); // Log the user ID for debugging
+
+        // Navigate to the home page
+        navigate("/");
       })
       .catch(() => {
         console.log("error");

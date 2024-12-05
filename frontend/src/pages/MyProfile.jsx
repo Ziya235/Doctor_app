@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
-import { AppContext } from "../context/AppContext";
+import React, { useEffect, useState, useRef } from "react";
 import { assets } from "../assets/assets";
 import Modal from "react-modal";
 import PhoneInput from "react-phone-input-2";
@@ -14,10 +13,6 @@ import ProfileMap from "../components/Profile_map";
 import Cookies from "js-cookie";
 
 const MyProfile = () => {
-  const { currencySymbol } = useContext(AppContext);
-
-  // const [docInfo, setDocInfo] = useState(doctors[5]);
-
   const [openAddEditModal, setOpenAddEditModal] = useState(false);
   const [openAddEditModal_edu, setOpenAddEditModal_edu] = useState(false);
   const [openAddEditModal_exp, setOpenAddEditModal_exp] = useState(false);
@@ -63,86 +58,97 @@ const MyProfile = () => {
   const teacherId = Cookies.get("teacherId");
   console.log(userId);
 
-  useEffect(() => {
-    fetch(`http://localhost:5000/get-user/${userId}`) // Add 'http://' to make it a valid URL
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json(); // Parse JSON data
-      })
-      .then((data) => {
-        setProfilData(data);
-        setName(data.user.name);
-        setSurname(data.user.surname);
-        setPrice(data.user.price);
-        setAbout_you(data.user.about);
-        setSpeciality(data.user.speciality);
-        setExperience(data.user.experience);
-        setPhoneNumber(data.user.phone);
-        const formattedDate = data.user.dateOfBirth
-          ? new Date(data.user.dateOfBirth).toISOString().split("T")[0]
-          : "";
-
-        const profileImageUrl = data.user.profileImage
-          ? `http://localhost:5000/${data.user.profileImage.replace(
-              /\\/g,
-              "/"
-            )}`
-          : null;
-        setProfileImage1(profileImageUrl);
-
-        console.log("Fetched date:", data.user.dateOfBirth);
-        console.log("Formatted date:", formattedDate);
-
-        setBirthOfDate(formattedDate);
-      })
-      .catch((error) => {
-        console.error("There was a problem with the fetch operation:", error);
-      });
-  }, []);
-
   const [universityData, setUniversityData] = useState();
 
-  const [experienceData,setExperienceData] = useState()
+  const [experienceData, setExperienceData] = useState();
 
-  useEffect(() => {
+  // Define an async function to fetch the user data
+  const fetchUserData = async (userId) => {
+    const url = `http://localhost:5000/get-user/${userId}`;
     try {
-      fetch(`
-        http://localhost:5000/get-teacher-universities/${teacherId}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json(); // Parse JSON data
-        })
-        .then((data) => {
-          console.log(data);
-          setUniversityData(data);
-        });
-    } catch (error) {}
-  }, []);
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
 
+      const data = await response.json(); // Parse JSON data
+      setProfilData(data);
 
+      // Set the individual fields
+      setName(data.user.name);
+      setSurname(data.user.surname);
+      setPrice(data.user.price);
+      setAbout_you(data.user.about);
+      setSpeciality(data.user.speciality);
+      setExperience(data.user.experience);
+      setPhoneNumber(data.user.phone);
+
+      // Format the birth date if it exists
+      const formattedDate = data.user.dateOfBirth
+        ? new Date(data.user.dateOfBirth).toISOString().split("T")[0]
+        : "";
+
+      const profileImageUrl = data.user.profileImage
+        ? `http://localhost:5000/${data.user.profileImage.replace(/\\/g, "/")}`
+        : null;
+      setProfileImage1(profileImageUrl);
+
+      // Log the dates for debugging
+      console.log("Fetched date:", data.user.dateOfBirth);
+      console.log("Formatted date:", formattedDate);
+
+      setBirthOfDate(formattedDate);
+    } catch (error) {
+      console.error("There was a problem with the fetch operation:", error);
+    }
+  };
+
+  // Use useEffect to call the async function
   useEffect(() => {
+    fetchUserData(userId); // Fetch user data when the component mounts or userId changes
+  }, [userId]); //
+
+  const fetchUniversityData = async (teacherId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/get-teacher-universities/${teacherId}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json(); // Parse JSON data
+      console.log(data);
+      setUniversityData(data); // Update the state with fetched data
+    } catch (error) {
+      console.error("Error fetching university data:", error); // Handle errors
+    }
+  };
+
+  // Use useEffect to call the async function
+  useEffect(() => {
+    fetchUniversityData(teacherId);
+    fetchExperienceData(teacherId); // Call the async function
+  }, [teacherId]); // Ensure teacherId is included in the dependency array
+
+  const fetchExperienceData = async (teacherId) => {
     const url = `http://localhost:5000/get-teacher-experiences/${teacherId}`;
-    fetch(url)
-      .then((response) => {
-        console.log('Response status:', response.status); // Log status
-        if (!response.ok) {
-          throw new Error(`Network response was not ok: ${response.statusText}`);
-        }
-        return response.json(); // Parse JSON data
-      })
-      .then((data) => {
-        console.log(data); // Log the data
-        setExperienceData(data);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error); // Log the error
-      });
-  }, [teacherId]);
-  
+    try {
+      const response = await fetch(url);
+      console.log("Response status:", response.status); // Log response status
+
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.statusText}`);
+      }
+
+      const data = await response.json(); // Parse the JSON data
+      console.log(data); // Log the data
+      setExperienceData(data); // Set the experience data to the state
+    } catch (error) {
+      console.error("Error fetching data:", error); // Log any errors
+    }
+  };
 
   // Profil Data States
   const fileInputRef = useRef(null);
@@ -203,8 +209,13 @@ const MyProfile = () => {
 
       const result = await response.json();
       console.log("User updated successfully:", result);
-
-      alert("User details updated successfully!");
+      fetchExperienceData(teacherId);
+      setOpenAddEditModal_exp(false);
+      setCompanyName("");
+      setPosition("");
+      setExperienceStartDate("");
+      setExperienceEndDate("");
+      setAbout_experience("");
     } catch (error) {
       console.error("There was a problem with the update operation:", error);
       alert("Failed to update user details");
@@ -239,8 +250,13 @@ const MyProfile = () => {
 
       const result = await response.json();
       console.log("User updated successfully:", result);
-
-      alert("User details updated successfully!");
+      fetchUniversityData(teacherId);
+      setOpenAddEditModal_edu(false);
+      setUniversityName("");
+      setFaculty("");
+      setEducationStartDate("");
+      setEducationEndDate("");
+      setAbout_education("");
     } catch (error) {
       console.error("There was a problem with the update operation:", error);
       alert("Failed to update user details");
@@ -304,8 +320,8 @@ const MyProfile = () => {
 
       const result = await response.json();
       console.log("User updated successfully:", result);
-
-      alert("User details updated successfully!");
+      fetchUserData(userId);
+      setOpenAddEditModal(false)
     } catch (error) {
       console.error("There was a problem with the update operation:", error);
       alert("Failed to update user details");
@@ -321,36 +337,6 @@ const MyProfile = () => {
 
     return `${match[1]}-${match[2]}-${match[3]}-${match[4]}-${match[5]}`;
   };
-
-  const workExperiences = [
-    {
-      id: 1,
-      companyName: "Google",
-      title: "Software Engineer",
-      startingDate: "08/01/2019",
-      endDate: "03/01/2022",
-      description:
-        "Developed scalable backend systems for Google Cloud. Led a team in creating an AI-powered search feature that improved search efficiency by 30%. Collaborated across teams to enhance performance of distributed systems.",
-    },
-    {
-      id: 2,
-      companyName: "Amazon",
-      title: "Senior Software Developer",
-      startingDate: "04/01/2022",
-      endDate: "Present",
-      description:
-        "Architected and implemented microservices for Amazon Web Services (AWS). Designed and launched features for high-volume e-commerce platforms, improving user retention by 25%. Mentored junior developers on best practices and coding standards.",
-    },
-    {
-      id: 3,
-      companyName: "Facebook",
-      title: "Software Engineer Intern",
-      startingDate: "06/01/2018",
-      endDate: "08/01/2018",
-      description:
-        "Built tools for automating data analysis for Facebook Ads. Optimized performance of existing algorithms, reducing processing time by 15%. Presented findings and improvements to senior management.",
-    },
-  ];
 
   const calculateAge = (dateString) => {
     if (!dateString) return "Age not specified";
@@ -394,7 +380,7 @@ const MyProfile = () => {
             <div>
               {profileImage1 ? (
                 <img
-                  className="bg-primary w-full sm:w-72 h-72 sm:h-80 rounded-lg  object-cover"
+                  className="bg-primary w-full sm:w-72 h-72  rounded-lg  object-cover"
                   src={profileImage1}
                   alt=""
                 />
@@ -402,12 +388,12 @@ const MyProfile = () => {
                 <img
                   src={assets.noAvatar}
                   alt="Placeholder"
-                  className="bg-primary w-full sm:w-72 h-72 sm:h-80 rounded-lg  object-cover"
+                  className="bg-primary w-full sm:w-72 h-72  rounded-lg  object-cover"
                 />
               )}
             </div>
 
-            <div className="flex-1 border border-gray-400 rounded-lg px-8 py-8 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0 pb-[-4rem]  relative">
+            <div className="flex-1 border border-gray-400 rounded-lg px-8 py-4 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0 pb-[-4rem]  relative">
               {/* ---------Doc Info: name, degree, experience--------- */}
               <p className="flex items-center gap-2 text-2xl font-medium text-gray-900">
                 {profileData.user.name} {profileData.user.surname}
@@ -415,9 +401,11 @@ const MyProfile = () => {
               </p>
               <div className="flex items-center gap-2 text-sm mt-1 text-gray-600">
                 <p>{profileData.user.speciality} teacher</p>
-                <button className="py-0.5 px-2 border text-xs rounded-full ">
-                  {profileData.user.experience}
-                </button>
+                {profileData.user.experience && (
+                  <button className="py-0.5 px-2 border text-xs rounded-full ">
+                    {profileData.user.experience}
+                  </button>
+                )}
               </div>
 
               {/* ----------Doctor about------------------- */}
@@ -426,47 +414,57 @@ const MyProfile = () => {
                   About
                   <img src={assets.info_icon} alt="" />
                 </p>
-                <p className="text-sm text-gray-500 max-w-[700px] mt-1">
-                  {profileData.user.about}
-                </p>
+                {profileData.user.about ? (
+                  <p className="text-sm text-gray-500 max-w-[700px] mt-1">
+                    {profileData.user.about}
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-500 max-w-[700px] mt-1">
+                    No additional information available.
+                  </p>
+                )}
               </div>
 
               <p className="text-gray-500 font-medium mt-4">
                 Price :{" "}
                 <span className="text-gray-600">
-                  {currencySymbol} {profileData.user.price}
+                  {profileData.user.price
+                    ? `₼ ${profileData.user.price}`
+                    : "Not specified"}
                 </span>
               </p>
 
-              <div className="mb-12">
+              <div>
                 <p className="text-gray-500 font-medium mt-4">
                   Phone :{" "}
                   <span className="text-gray-600">
                     {formatPhoneNumber(profileData.user.phone)}
                   </span>
                 </p>
-                <p className="text-gray-500 font-medium mt-4 flex items-center space-x-2">
-                  <span className="text-gray-700 font-bold">
-                    Date of Birth:
-                  </span>
-                  <span className="text-gray-600">
-                    {formatDateOfBirth(profileData.user.dateOfBirth)}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    (Age:{" "}
-                    <span className="text-blue-600 font-semibold">
-                      {calculateAge(profileData.user.dateOfBirth)}
+                <div className="flex flex-col lg:flex-row justify-between">
+                  <p className="text-gray-500 font-medium mt-4 flex items-center space-x-2">
+                    <span className="text-gray-700 font-bold">
+                      Date of Birth:
                     </span>
-                    )
-                  </span>
-                </p>
+                    <span className="text-gray-600">
+                      {formatDateOfBirth(profileData.user.dateOfBirth)}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      (Age:{" "}
+                      <span className="text-blue-600 font-semibold">
+                        {calculateAge(profileData.user.dateOfBirth)}
+                      </span>
+                      )
+                    </span>
+                  </p>
 
-                <button
-                  onClick={() => setOpenAddEditModal(true)}
-                  className="mt-4 absolute   lg:right-10  px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-                >
-                  UPDATE
-                </button>
+                  <button
+                    onClick={() => setOpenAddEditModal(true)}
+                    className="mt-4  px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  >
+                    UPDATE
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -497,7 +495,6 @@ const MyProfile = () => {
           {/* Image Upload Section */}
           <div className="flex items-center gap-4 mb-8">
             <div className="mb-4">
-              <label className="block mb-2 font-bold">Profile Image</label>
               <input
                 type="file"
                 ref={fileInputRef}
@@ -507,7 +504,7 @@ const MyProfile = () => {
               />
               <div
                 onClick={() => fileInputRef.current.click()}
-                className="cursor-pointer w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden border-2 border-gray-300"
+                className="cursor-pointer w-16 h-16 rounded-full mx-auto overflow-hidden border-2 border-gray-300"
               >
                 {previewImage ? (
                   <img
@@ -519,7 +516,7 @@ const MyProfile = () => {
                   <img
                     src={previewImage || profileImage1 || assets.noAvatar}
                     alt="Profile Image"
-                    className="w-full h-full object-cover sm:w-72 sm:h-80 rounded-lg bg-primary"
+                    className="w-full h-full object-cover sm:w-72  rounded-lg bg-primary"
                     onError={(e) => {
                       // Handle error, e.g., display a default image or error message
                       e.target.src = assets.noAvatar; // Replace with your error handling logic
@@ -528,7 +525,7 @@ const MyProfile = () => {
                 )}
               </div>
             </div>
-            <div>
+            <div className="pb-4">
               <p className="text-lg font-semibold text-gray-800">Upload Your</p>
               <p className="text-lg font-semibold text-gray-800">Image</p>
             </div>
@@ -709,7 +706,7 @@ const MyProfile = () => {
         <div className="p-6">
           <div className="flex flex-col items-center">
             {universityData &&
-              universityData.universities.map((item,index) => (
+              universityData.universities.map((item, index) => (
                 <div key={item.id || index} className="w-full mb-6">
                   <div className="flex justify-between">
                     <div className="pt-10">
@@ -903,37 +900,40 @@ const MyProfile = () => {
         {/* Card Body */}
         <div className="p-6">
           <div className="flex flex-col items-center">
-            {experienceData && experienceData.experiences.map((item,index) => (
-              <div key={item.id || index} className="w-full mb-6">
-                <div className="flex justify-between">
-                  <div className="pt-10">
-                    <div className="flex gap-6 items-center ml-5">
-                      {/* Icon Box */}
-                      <div>
-                        <MdWork className="text-blue-600 text-4xl" />
-                      </div>
+            {experienceData &&
+              experienceData.experiences.map((item, index) => (
+                <div key={item.id || index} className="w-full mb-6">
+                  <div className="flex justify-between">
+                    <div className="pt-10">
+                      <div className="flex gap-6 items-center ml-5">
+                        {/* Icon Box */}
+                        <div>
+                          <MdWork className="text-blue-600 text-4xl" />
+                        </div>
 
-                      {/* Experience Details */}
-                      <div className="flex flex-col gap-1">
-                        <p className="font-bold text-lg">
-                          {item.companyName} ---- {item.position}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <GoClock />
-                          <p className="text-sm text-gray-600">
+                        {/* Experience Details */}
+                        <div className="flex flex-col gap-1">
+                          <p className="font-bold text-lg">
+                            {item.company_name} ---- {item.position}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <GoClock />
+                            <p className="text-sm text-gray-600">
                               {new Date(item.startDate).toLocaleDateString()} -{" "}
                               {item.endDate
                                 ? new Date(item.endDate).toLocaleDateString()
                                 : "present"}
                             </p>
+                          </div>
+                          <p className="text-gray-600">
+                            {item.about_experience}
+                          </p>
                         </div>
-                        <p className="text-gray-600">{item.about_experience}</p>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
             {/* Add Experience Button */}
             <div className="flex items-center gap-1 bg-blue-600 cursor-pointer text-white px-5 py-2 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 transition-all mt-6">
@@ -1018,15 +1018,15 @@ const MyProfile = () => {
                   </label>
                   <div className="flex items-center gap-4">
                     <input
-                     type="date"
-                     id="endDate"
-                     className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                     disabled={isPresent}
-                     placeholder="mm/dd/yyyy"
-                     value={isPresent ? "" : experienceEndDate}
-                     onChange={(e) => {
-                       setExperienceEndDate(e.target.value);
-                     }}
+                      type="date"
+                      id="endDate"
+                      className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                      disabled={isPresent}
+                      placeholder="mm/dd/yyyy"
+                      value={isPresent ? "" : experienceEndDate}
+                      onChange={(e) => {
+                        setExperienceEndDate(e.target.value);
+                      }}
                     />
                     <div className="flex items-center">
                       <input
@@ -1053,18 +1053,19 @@ const MyProfile = () => {
                   About work
                 </label>
                 <textarea
-                value={about_experience}
-                onChange={(e)=>setAbout_experience(e.target.value)}
+                  value={about_experience}
+                  onChange={(e) => setAbout_experience(e.target.value)}
                   placeholder="Write information about work"
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none resize-none h-32"
                 />
               </div>
               <div className="flex items-center justify-center lg:items-start lg:justify-end">
-                <button 
-                 onClick={() => {
-                  AddExperience();
-                }}
-                className="w-full lg:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition-all duration-200 ease-in-out">
+                <button
+                  onClick={() => {
+                    AddExperience();
+                  }}
+                  className="w-full lg:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition-all duration-200 ease-in-out"
+                >
                   Save
                 </button>
               </div>

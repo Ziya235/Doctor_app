@@ -63,10 +63,10 @@ const RelatedDoctors = ({ docId, speciality }) => {
             key={index}
             className="border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500"
           >
-              <div className="relative w-full h-48 bg-blue-50">
+             <div className="relative w-full h-64 bg-blue-50">
                 {item.profileImageUrl ? (
                   <img
-                    className="bg-primary w-full sm:w-72 h-60 sm:h-44 rounded-lg object-cover"
+                    className="absolute inset-0 w-full h-full object-cover rounded-lg"
                     src={item.profileImageUrl}
                     alt={`${item.name}'s profile`}
                     onError={(e) => {
@@ -78,7 +78,7 @@ const RelatedDoctors = ({ docId, speciality }) => {
                   <img
                     src={assets.noAvatar}
                     alt="Placeholder"
-                    className="bg-primary w-full sm:w-72 h-72 sm:h-44 rounded-lg object-cover"
+                    className="absolute inset-0 w-full h-full object-cover rounded-lg"
                   />
                 )}
               </div>

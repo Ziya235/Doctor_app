@@ -67,8 +67,11 @@ const Navbar = () => {
 
   const handleLogout = () => {
     Cookies.remove("token");
+    Cookies.remove("teacherId");
+    Cookies.remove("userId");
     setIsProfileOpen(false);
     console.log("Logging out");
+    navigate("/login")
   };
 
   const token = Cookies.get("token");
@@ -176,7 +179,7 @@ const Navbar = () => {
                   <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
                     <div
                       onClick={() => {
-                        navigate("my-profile"), setIsProfileOpen(false);
+                        navigate("my-profile"), setIsProfileOpen(false), scrollTo(0,0);
                       }}
                       className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
                     >
