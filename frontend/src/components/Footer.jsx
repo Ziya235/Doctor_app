@@ -24,15 +24,16 @@ const Footer = () => {
             <Link to="/" onClick={() => scrollTo(0, 0)}>
               Home
             </Link>
+            <Link to="/teachers" onClick={() => scrollTo(0, 0)}>
+              Teachers
+            </Link>
             <Link to="/about" onClick={() => scrollTo(0, 0)}>
               About us
             </Link>
             <Link to="/contact" onClick={() => scrollTo(0, 0)}>
               Contact us
             </Link>
-            <Link to="/" onClick={() => scrollTo(0, 0)}>
-              Privacy Policy
-            </Link>
+          
           </ul>
         </div>
 

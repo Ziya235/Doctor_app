@@ -85,7 +85,7 @@ export const specialityData = [
         image: az_dili
     },
     {
-        speciality: 'Riyaziyyat',
+        speciality: 'Math',
         image: math
     },
     {
@@ -93,25 +93,25 @@ export const specialityData = [
         image: english
     },
     {
-        speciality: 'Fizika',
+        speciality: 'Physics',
         image: physics
     },
   
     {
-        speciality: 'Kimya',
+        speciality: 'Chemistry',
         image: chemistry
     },
 
     {
-        speciality: 'Coğrafiya',
+        speciality: 'Geography',
         image: geography
     },
     {
-        speciality: 'Tarix',
+        speciality: 'History',
         image: tarix
     },
     {
-        speciality: 'Biologiya',
+        speciality: 'Biology',
         image: biology
     },
     {

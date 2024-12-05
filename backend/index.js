@@ -387,6 +387,18 @@ app.get("/get-user/:userId", async (req, res) => {
   }
 });
 
+app.get('/get-teacher/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'Teacher not found' });
+    }
+    res.json({ user });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // Get  Teacher --- Your Profile
 
 app.get("/get-teacher", authenticateToken, async (req, res) => {

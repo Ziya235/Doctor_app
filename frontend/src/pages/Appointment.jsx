@@ -1,36 +1,60 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
 import { assets } from "../assets/assets";
+
 import RelatedDoctors from "../components/RelatedDoctors";
 
 import { MdOutlineLibraryBooks } from "react-icons/md";
 import { GoClock } from "react-icons/go";
 import { FaGraduationCap } from "react-icons/fa";
-import { MdAdd } from "react-icons/md";
 import { MdWork } from "react-icons/md";
 import { AiOutlineFileText } from "react-icons/ai";
-import ProfileMap from "../components/Profile_map";
 import InfoMap from "../components/InfoMap";
 
 const Appointment = () => {
   const { docId } = useParams();
-  const { doctors, currencySymbol } = useContext(AppContext);
-
   const [docInfo, setDocInfo] = useState(null);
-  const [docSlots, setDocSlots] = useState([]);
-  // const [slotIndex, setSlotIndex] = useState(0);
-  // const [slotTime, setSlotTime] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const fetchDocInfo = async () => {
-    const docInfo = doctors.find((doc) => doc._id === docId);
-    setDocInfo(docInfo);
-    console.log(docInfo);
-  };
+  const [universityData, setUniversityData] = useState();
+
+  const [experienceData, setExperienceData] = useState();
 
   useEffect(() => {
-    fetchDocInfo();
-  }, [doctors, docId]);
+    try {
+      fetch(`
+        http://localhost:5000/get-teacher-universities/${docId}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json(); // Parse JSON data
+        })
+        .then((data) => {
+          console.log(data);
+          setUniversityData(data);
+          console.log(data.universities);
+        });
+    } catch (error) {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      fetch(`
+        http://localhost:5000/get-teacher-experiences/${docId}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json(); // Parse JSON data
+        })
+        .then((data) => {
+          console.log(data);
+          setExperienceData(data);
+        });
+    } catch (error) {}
+  }, []);
 
   const experiences = [
     {
@@ -90,53 +114,106 @@ const Appointment = () => {
     },
   ];
 
+  useEffect(() => {
+    const fetchTeacherInfo = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `http://localhost:5000/get-teacher/${docId}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch teacher information");
+        }
+
+        const data = await response.json();
+
+        // Process profile image URL
+        const teacherWithImage = {
+          ...data.user,
+          profileImageUrl: data.user.profileImage
+            ? `http://localhost:5000/${data.user.profileImage.replace(
+                /\\/g,
+                "/"
+              )}`
+            : null,
+        };
+
+        setDocInfo(teacherWithImage);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching teacher info:", error);
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    if (docId) {
+      fetchTeacherInfo();
+    }
+  }, [docId]);
+
+  if (loading) {
+    return <div className="text-center mt-10">Loading teacher details...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center mt-10 text-red-500">Error: {error}</div>;
+  }
+
   return (
     <>
       {docInfo && (
         <div>
-          {/* ------ Doctor Details-------- */}
+          {/* Doctor Details */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div>
               <img
-                className="bg-primary w-full sm:w-72 h-72 sm:h-80 rounded-lg  object-cover"
-                src={docInfo.image}
-                alt=""
+                className="bg-primary w-full sm:w-72 h-72 sm:h-80 rounded-lg object-cover"
+                src={docInfo.profileImageUrl || assets.noAvatar}
+                alt={docInfo.name}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = assets.noAvatar;
+                }}
               />
             </div>
 
-            <div className="flex-1 border border-gray-400 rounded-lg p-8 py-7 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0 ">
-              {/* ---------Doc Info: name,degree,experince--------- */}
+            <div className="flex-1 border border-gray-400 rounded-lg p-8 py-7 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0">
+              {/* Doc Info: name, degree, experience */}
               <p className="flex items-center gap-2 text-2xl font-medium text-gray-900">
                 {docInfo.name}
-                <img src={assets.verified_icon} alt="" />
+                <img src={assets.verified_icon} alt="Verified" />
               </p>
               <div className="flex items-center gap-2 text-sm mt-1 text-gray-600">
                 <p>{docInfo.speciality} teacher</p>
-                <button className="py-0.5 px-2 border text-xs rounded-full ">
-                  {" "}
-                  {docInfo.experience}
+                <button className="py-0.5 px-2 border text-xs rounded-full">
+                  {docInfo.experience || "N/A"}
                 </button>
               </div>
 
-              {/* ----------Doctor about------------------- */}
+              {/* Doctor about */}
               <div>
                 <p className="flex items-center gap-1 text-sm font-medium text-gray-900 mt-3">
                   About
-                  <img src={assets.info_icon} alt="" />
+                  <img src={assets.info_icon} alt="Info" />
                 </p>
                 <p className="text-sm text-gray-500 max-w-[700px] mt-1">
-                  {docInfo.about}
+                  {docInfo.about || "No additional information available."}
                 </p>
               </div>
 
               <p className="text-gray-500 font-medium mt-4">
-                Price :{" "}
+                Price:{" "}
                 <span className="text-gray-600">
-                  {currencySymbol} {docInfo.fees}
+                  {docInfo.fees ? `₼ ${docInfo.fees}` : "Not specified"}
                 </span>
               </p>
               <p className="text-gray-500 font-medium mt-4">
-                Phone : <span className="text-gray-600">994-55-300-50-50</span>
+                Phone:{" "}
+                <span className="text-gray-600">
+                  {docInfo.phone || "994-55-300-50-50"}
+                </span>
               </p>
             </div>
           </div>
@@ -156,37 +233,38 @@ const Appointment = () => {
         {/* Card Body */}
         <div className="p-6">
           <div className="flex flex-col items-center">
-            {experiences.map((item) => (
-              <div key={item.id} className="w-full mb-6">
-                <div className="flex justify-between">
-                  <div className="pt-10">
-                    <div className="flex gap-6 items-center ml-5">
-                      {/* Icon Box */}
-                      <div>
-                        <FaGraduationCap className="text-blue-600 text-4xl" />
-                      </div>
-
-                      {/* Education Details */}
-                      <div className="flex flex-col gap-1">
-                        <p className="font-bold text-lg">
-                          {item.companyName} ---- {item.title}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <GoClock />
-                          <p className="text-sm text-gray-600">
-                            {new Date(item.startingDate).toLocaleDateString()} -{" "}
-                            {item.endDate === "Present"
-                              ? "Present"
-                              : new Date(item.endDate).toLocaleDateString()}
-                          </p>
+            {universityData &&
+              universityData.universities.map((item) => (
+                <div key={item.id} className="w-full mb-6">
+                  <div className="flex justify-between">
+                    <div className="pt-10">
+                      <div className="flex gap-6 items-center ml-5">
+                        {/* Icon Box */}
+                        <div>
+                          <FaGraduationCap className="text-blue-600 text-4xl" />
                         </div>
-                        <p className="text-gray-600">{item.description}</p>
+
+                        {/* Education Details */}
+                        <div className="flex flex-col gap-1">
+                          <p className="font-bold text-lg">
+                            {item.university} ---- {item.faculty}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <GoClock />
+                            <p className="text-sm text-gray-600">
+                              {new Date(item.startDate).toLocaleDateString()} -{" "}
+                              {item.endDate
+                                ? new Date(item.endDate).toLocaleDateString()
+                                : "present"}
+                            </p>
+                          </div>
+                          <p className="text-gray-600">{item.about_university}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       </div>
@@ -204,7 +282,7 @@ const Appointment = () => {
         {/* Card Body */}
         <div className="p-6">
           <div className="flex flex-col items-center">
-            {workExperiences.map((item) => (
+            {experienceData && experienceData.experiences.map((item) => (
               <div key={item.id} className="w-full mb-6">
                 <div className="flex justify-between">
                   <div className="pt-10">
@@ -217,18 +295,18 @@ const Appointment = () => {
                       {/* Experience Details */}
                       <div className="flex flex-col gap-1">
                         <p className="font-bold text-lg">
-                          {item.companyName} ---- {item.title}
+                          {item.companyName} ---- {item.position}
                         </p>
                         <div className="flex items-center gap-2">
                           <GoClock />
                           <p className="text-sm text-gray-600">
-                            {new Date(item.startingDate).toLocaleDateString()} -{" "}
-                            {item.endDate === "Present"
-                              ? "Present"
-                              : new Date(item.endDate).toLocaleDateString()}
-                          </p>
+                              {new Date(item.startDate).toLocaleDateString()} -{" "}
+                              {item.endDate
+                                ? new Date(item.endDate).toLocaleDateString()
+                                : "present"}
+                            </p>
                         </div>
-                        <p className="text-gray-600">{item.description}</p>
+                        <p className="text-gray-600">{item.about_experience}</p>
                       </div>
                     </div>
                   </div>

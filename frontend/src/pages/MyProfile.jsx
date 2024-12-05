@@ -125,21 +125,24 @@ const MyProfile = () => {
 
 
   useEffect(() => {
-    try {
-      fetch(`
-        http://localhost:5000/get-teacher-experiences/${teacherId}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json(); // Parse JSON data
-        })
-        .then((data) => {
-          console.log(data);
-          setExperienceData(data);
-        });
-    } catch (error) {}
-  }, []);
+    const url = `http://localhost:5000/get-teacher-experiences/${teacherId}`;
+    fetch(url)
+      .then((response) => {
+        console.log('Response status:', response.status); // Log status
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        return response.json(); // Parse JSON data
+      })
+      .then((data) => {
+        console.log(data); // Log the data
+        setExperienceData(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error); // Log the error
+      });
+  }, [teacherId]);
+  
 
   // Profil Data States
   const fileInputRef = useRef(null);
@@ -652,7 +655,8 @@ const MyProfile = () => {
                 </label>
                 <select
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                  defaultValue={speciality ? speciality : ""}
+                  defaultValue={speciality} // Use value instead of defaultValue
+                  onChange={(e) => setSpeciality(e.target.value)}
                 >
                   <option value="" disabled hidden>
                     Choose your speciality
@@ -705,8 +709,8 @@ const MyProfile = () => {
         <div className="p-6">
           <div className="flex flex-col items-center">
             {universityData &&
-              universityData.universities.map((item) => (
-                <div key={item.id} className="w-full mb-6">
+              universityData.universities.map((item,index) => (
+                <div key={item.id || index} className="w-full mb-6">
                   <div className="flex justify-between">
                     <div className="pt-10">
                       <div className="flex gap-6 items-center ml-5">
@@ -899,8 +903,8 @@ const MyProfile = () => {
         {/* Card Body */}
         <div className="p-6">
           <div className="flex flex-col items-center">
-            {experienceData && experienceData.experiences.map((item) => (
-              <div key={item.id} className="w-full mb-6">
+            {experienceData && experienceData.experiences.map((item,index) => (
+              <div key={item.id || index} className="w-full mb-6">
                 <div className="flex justify-between">
                   <div className="pt-10">
                     <div className="flex gap-6 items-center ml-5">

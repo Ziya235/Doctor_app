@@ -2,22 +2,54 @@ import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
 
+import {assets} from "../assets/assets"
+
 const RelatedDoctors = ({ docId, speciality }) => {
-  const { doctors } = useContext(AppContext);
 
   const [relDoc, setRelDoc] = useState([]);
 
   const navigate = useNavigate()
 
+  const [allTeacher, setAllTeacher] = useState([]);
+
+
   useEffect(() => {
-    if (doctors.length > 0 && speciality) {
-      const doctorsData = doctors.filter(
+    try {
+      fetch("http://localhost:5000/get-all-teacher")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch teachers");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log(data); // Log the fetched data
+          const teachersWithImages = data.users.map(teacher => ({
+            ...teacher,
+            profileImageUrl: teacher.profileImage
+              ? `http://localhost:5000/${teacher.profileImage.replace(/\\/g, "/")}`
+              : null
+          }));
+          setAllTeacher(teachersWithImages);
+        })
+        .catch(error => {
+          console.error("Error fetching teachers:", error);
+        });
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log('Speciality:', speciality);
+    console.log('DocId:', docId);
+    if (allTeacher.length > 0 && speciality) {
+      const doctorsData = allTeacher.filter(
         (doc) => doc.speciality === speciality && doc._id !== docId
       );
       setRelDoc(doctorsData);
     }
-  }, [doctors, speciality, docId]);
-
+  }, [speciality, docId, allTeacher]);
   return (
     <div className="flex flex-col items-center gap-4 my-16 text-gray-900 md:mx-10">
       <h1 className="text-3xl font-medium">Related Teachers</h1>
@@ -32,12 +64,24 @@ const RelatedDoctors = ({ docId, speciality }) => {
             className="border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500"
           >
               <div className="relative w-full h-48 bg-blue-50">
-              <img
-                className="teacher_image w-full h-full object-cover"
-                src={item.image} 
-                alt={`${item.name}'s profile`}
-              />
-            </div>
+                {item.profileImageUrl ? (
+                  <img
+                    className="bg-primary w-full sm:w-72 h-60 sm:h-44 rounded-lg object-cover"
+                    src={item.profileImageUrl}
+                    alt={`${item.name}'s profile`}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = assets.noAvatar;
+                    }}
+                  />
+                ) : (
+                  <img
+                    src={assets.noAvatar}
+                    alt="Placeholder"
+                    className="bg-primary w-full sm:w-72 h-72 sm:h-44 rounded-lg object-cover"
+                  />
+                )}
+              </div>
             <div className="p-4">
               <div className="flex items-center gap-2 text-sm text-center text-green-500">
                 <p className="w-2 h-2 bg-green-500 rounded-full"></p>{" "}
@@ -51,7 +95,7 @@ const RelatedDoctors = ({ docId, speciality }) => {
       </div>
       <button
         onClick={() => {
-          navigate("/doctors");
+          navigate("/teachers");
           scrollTo(0, 0);
         }}
         className="bg-blue-50 text-gray-600 px-12 py-3 rounded-full mt-10"
