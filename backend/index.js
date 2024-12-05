@@ -30,80 +30,151 @@ app.get("/", (req, res) => {
 
 //Create Account
 
-app.post("/create-account", async (req, res) => {
-  const {
-    name,
-    surname,
-    email,
-    speciality,
-    password,
-    experience,
-    about,
-    price,
-    phone,
-    available,
-    dateOfBirth
-  } = req.body;
+// Configure multer for file upload
 
-  if (!name) {
-    return res
-      .status(400)
-      .json({ error: true, message: "Full name is required" });
+const path = require("path");
+const multer = require("multer");
+const fs = require("fs");
+
+app.use("/uploads", express.static("uploads"));
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, "uploads/profile-images");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/profile-images/"); // Destination folder for profile images
+  },
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(
+        file.originalname
+      )}`
+    );
+  },
+});
+
+// File filter to accept only image files
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(
+      new Error(
+        "Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed."
+      ),
+      false
+    );
   }
+};
 
-  if (!surname) {
-    return res
-      .status(400)
-      .json({ error: true, message: "Full name is required" });
-  }
-  if (!email) {
-    return res.status(400).json({ error: true, message: "Email is required" });
-  }
+// Create multer upload instance
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB file size limit
+  },
+});
 
-  if (!password) {
-    return res
-      .status(400)
-      .json({ error: true, message: "Password is required" });
-  }
+// Account creation route with image upload
+app.post("/create-account", upload.single("profileImage"), async (req, res) => {
+  try {
+    const {
+      name,
+      surname,
+      email,
+      speciality,
+      password,
+      experience,
+      about,
+      price,
+      phone,
+      available,
+      dateOfBirth,
+    } = req.body;
 
-  const isUser = await User.findOne({ email: email });
+    // Existing validation checks
+    if (!name) {
+      return res
+        .status(400)
+        .json({ error: true, message: "Full name is required" });
+    }
+    if (!surname) {
+      return res
+        .status(400)
+        .json({ error: true, message: "Surname is required" });
+    }
+    if (!email) {
+      return res
+        .status(400)
+        .json({ error: true, message: "Email is required" });
+    }
+    if (!password) {
+      return res
+        .status(400)
+        .json({ error: true, message: "Password is required" });
+    }
 
-  if (isUser) {
-    return res.json({
+    // Check if user already exists
+    const isUser = await User.findOne({ email: email });
+    if (isUser) {
+      return res
+        .status(400)
+        .json({ error: true, message: "User already exists" });
+    }
+
+    // Prepare user data
+    const userData = {
+      name,
+      surname,
+      speciality,
+      email,
+      password,
+      experience,
+      about,
+      price,
+      phone,
+      dateOfBirth,
+      available,
+    };
+
+    // Add profile image path if uploaded
+    if (req.file) {
+      userData.profileImage = req.file.path;
+    }
+
+    // Create new user
+    const user = new User(userData);
+    await user.save();
+
+    // Generate access token
+    const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: "36000m",
+    });
+
+    // Respond with user data and token
+    return res.status(201).json({
+      error: false,
+      user: {
+        ...user.toObject(),
+        userId: user.userId,
+        profileImage: user.profileImage || null,
+      },
+      accessToken,
+      message: "Registration successful",
+    });
+  } catch (error) {
+    console.error("Registration error:", error);
+    return res.status(500).json({
       error: true,
-      message: "User already exist",
+      message: "An error occurred during registration",
     });
   }
-
-  const user = new User({
-    name,
-    surname,
-    speciality,
-    email,
-    password,
-    experience,
-    about,
-    price,
-    phone,
-    dateOfBirth,
-    available,
-  });
-
-  await user.save();
-
-  const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "36000m",
-  });
-
-  return res.json({
-    error: false,
-    user: {
-      ...user.toObject(),
-      userId: user.userId, // Explicitly include the auto-generated userId
-    },
-    accessToken,
-    message: "registration successful",
-  });
 });
 
 /* Login */
@@ -135,6 +206,7 @@ app.post("/login", async (req, res) => {
       user: {
         id: userInfo.userId, // Include the user ID in the response
         email: userInfo.email,
+        teacher_id: userInfo._id
       },
       accessToken,
     });
@@ -145,7 +217,6 @@ app.post("/login", async (req, res) => {
     });
   }
 });
-
 
 // Get all Teachers
 
@@ -170,97 +241,122 @@ app.get("/get-all-teacher", async (req, res) => {
 });
 
 
+//Update Profil
+// Update profile route with image upload
+app.put(
+  "/update-profile", 
+  authenticateToken, 
+  upload.single('profileImage'), 
+  async (req, res) => {
+    try {
+      const {
+        name,
+        surname,
+        speciality,
+        experience,
+        about,
+        price,
+        phone,
+        dateOfBirth,
+        available,
+      } = req.body;
 
-app.put("/update-profile", authenticateToken, async (req, res) => {
-  try {
-    const {
-      name,
-      surname,
-      speciality,
-      experience,
-      about,
-      price,
-      phone,
-      dateOfBirth, // Make sure this matches exactly
-      available
-    } = req.body;
+      // Extract user ID from the authenticated token
+      const userId = req.user.user._id;
 
-    // Extract user ID from the authenticated token
-    const userId = req.user.user._id;
+      // Find the user by MongoDB _id
+      const user = await User.findById(userId);
 
-    // Find the user by MongoDB _id
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        error: true,
-        message: "User not found"
-      });
-    }
-
-    // Update fields if they are provided in the request
-    if (name) user.name = name;
-    if (surname) user.surname = surname;
-    if (speciality) user.speciality = speciality;
-    if (experience) user.experience = experience;
-    if (about) user.about = about;
-    if (price !== undefined) user.price = price;
-    if (phone) user.phone = phone;
-
-    // Specifically handle dateOfBirth
-    if (dateOfBirth) {
-      try {
-        // Validate and parse the date
-        const parsedDate = new Date(dateOfBirth);
-        
-        // Check if the date is valid
-        if (!isNaN(parsedDate.getTime())) {
-          user.dateOfBirth = parsedDate;
-        } else {
-          return res.status(400).json({
-            error: true,
-            message: "Invalid date format"
-          });
-        }
-      } catch (dateError) {
-        console.error("Date parsing error:", dateError);
-        return res.status(400).json({
+      if (!user) {
+        return res.status(404).json({
           error: true,
-          message: "Failed to parse date"
+          message: "User not found",
         });
       }
+
+      // Update fields if they are provided in the request
+      if (name) user.name = name;
+      if (surname) user.surname = surname;
+      if (speciality) user.speciality = speciality;
+      if (experience) user.experience = experience;
+      if (about !== undefined) {
+        user.about = about;
+      }
+      user.price = price;
+      if (phone !== undefined) user.phone = phone;
+
+      // Handle dateOfBirth
+      if (dateOfBirth !== undefined) {
+        if (dateOfBirth === null || dateOfBirth === "") {
+          user.dateOfBirth = null;
+        } else {
+          try {
+            const parsedDate = new Date(dateOfBirth);
+            if (!isNaN(parsedDate.getTime())) {
+              user.dateOfBirth = parsedDate;
+            } else {
+              return res.status(400).json({
+                error: true,
+                message: "Invalid date format",
+              });
+            }
+          } catch (dateError) {
+            console.error("Date parsing error:", dateError);
+            return res.status(400).json({
+              error: true,
+              message: "Failed to parse date",
+            });
+          }
+        }
+      }
+
+      // Handle profile image upload
+      if (req.file) {
+        // Remove old profile image if exists
+        if (user.profileImage) {
+          try {
+            fs.unlinkSync(user.profileImage);
+          } catch (err) {
+            console.error('Error deleting old profile image:', err);
+          }
+        }
+
+        // Update user's profile image path
+        user.profileImage = req.file.path;
+      }
+
+      if (available !== undefined) user.available = available;
+
+      // Save the updated user
+      await user.save();
+
+      // Respond with updated user information
+      return res.json({
+        error: false,
+        user: {
+          _id: user._id,
+          name: user.name,
+          surname: user.surname,
+          speciality: user.speciality,
+          experience: user.experience,
+          about: user.about,
+          price: user.price,
+          phone: user.phone,
+          dateOfBirth: user.dateOfBirth,
+          available: user.available,
+          profileImage: user.profileImage || null,
+        },
+        message: "Profile updated successfully",
+      });
+    } catch (error) {
+      console.error("Profile update error:", error);
+      return res.status(500).json({
+        error: true,
+        message: "Failed to update profile",
+      });
     }
-
-    if (available !== undefined) user.available = available;
-
-    // Save the updated user
-    await user.save();
-
-    // Respond with updated user information (excluding sensitive data)
-    return res.json({
-      error: false,
-      user: {
-        _id: user._id,
-        name: user.name,
-        surname: user.surname,
-        speciality: user.speciality,
-        experience: user.experience,
-        about: user.about,
-        price: user.price,
-        phone: user.phone,
-        dateOfBirth: user.dateOfBirth, // Include dateOfBirth in response
-        available: user.available
-      },
-      message: "Profile updated successfully"
-    });
-  } catch (error) {
-    console.error("Profile update error:", error);
-    return res.status(500).json({
-      error: true,
-      message: "Failed to update profile"
-    });
   }
-});
+);
 
 // Get user based on Id
 app.get("/get-user/:userId", async (req, res) => {
@@ -291,7 +387,6 @@ app.get("/get-user/:userId", async (req, res) => {
   }
 });
 
-
 // Get  Teacher --- Your Profile
 
 app.get("/get-teacher", authenticateToken, async (req, res) => {
@@ -316,46 +411,32 @@ app.get("/get-teacher", authenticateToken, async (req, res) => {
   });
 });
 
-
-
 // add university
 
 app.post("/create-university", authenticateToken, async (req, res) => {
   try {
-    const {
-      university,
-      faculty,
-      startDate,
-      endDate,
-      about_university
-    } = req.body;
+    const { university, faculty, startDate, endDate, about_university } =
+      req.body;
 
     // Validate required fields
     if (!university) {
       return res.status(400).json({
         error: true,
-        message: "University name is required"
+        message: "University name is required",
       });
     }
 
     if (!faculty) {
       return res.status(400).json({
         error: true,
-        message: "Faculty is required"
+        message: "Faculty is required",
       });
     }
 
     if (!startDate) {
       return res.status(400).json({
         error: true,
-        message: "Start date is required"
-      });
-    }
-
-    if (!endDate) {
-      return res.status(400).json({
-        error: true,
-        message: "End date is required"
+        message: "Start date is required",
       });
     }
 
@@ -367,37 +448,37 @@ app.post("/create-university", authenticateToken, async (req, res) => {
       university,
       faculty,
       startDate: new Date(startDate),
-      endDate: new Date(endDate),
+      ...(endDate && { endDate: new Date(endDate) }), // Conditionally add endDate
       about_university,
-      teacherId
+      teacherId,
     });
 
     // Save the university entry
     await universityEntry.save();
 
-    // Respond with the created university entry
-    return res.status(201).json({
+    // Prepare response object
+    const responseData = {
       error: false,
       university: {
         universityId: universityEntry.universityId,
         university: universityEntry.university,
         faculty: universityEntry.faculty,
         startDate: universityEntry.startDate,
-        endDate: universityEntry.endDate,
-        about_university: universityEntry.about_university
+        ...(endDate && { endDate: universityEntry.endDate }), // Conditionally add endDate to response
+        about_university: universityEntry.about_university,
       },
-      message: "University entry created successfully"
-    });
+      message: "University entry created successfully",
+    };
 
+    return res.status(201).json(responseData);
   } catch (error) {
     console.error("Create university error:", error);
     return res.status(500).json({
       error: true,
-      message: "Failed to create university entry"
+      message: "Failed to create university entry",
     });
   }
 });
-
 
 // get universtiy by teacher ID
 
@@ -409,7 +490,7 @@ app.get("/get-teacher-universities/:teacherId", async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(teacherId)) {
       return res.status(400).json({
         error: true,
-        message: "Invalid teacher ID"
+        message: "Invalid teacher ID",
       });
     }
 
@@ -423,89 +504,75 @@ app.get("/get-teacher-universities/:teacherId", async (req, res) => {
     if (universities.length === 0) {
       return res.status(404).json({
         error: true,
-        message: "No universities found for this teacher"
+        message: "No universities found for this teacher",
       });
     }
 
     return res.json({
       error: false,
-      universities: universities.map(uni => ({
+      universities: universities.map((uni) => ({
         universityId: uni.universityId,
         university: uni.university,
         faculty: uni.faculty,
         startDate: uni.startDate,
         endDate: uni.endDate,
-        about_university: uni.about_university
+        about_university: uni.about_university,
       })),
-      message: "Universities retrieved successfully"
+      message: "Universities retrieved successfully",
     });
-
   } catch (error) {
     console.error("Get teacher universities error:", error);
     return res.status(500).json({
       error: true,
-      message: "Failed to retrieve universities"
+      message: "Failed to retrieve universities",
     });
   }
 });
 
-
-// Add Experience  
+// Add Experience
 app.post("/create-experience", authenticateToken, async (req, res) => {
   try {
-    const {
-      company_name,
-      position,
-      startDate,
-      endDate,
-      about_experience
-    } = req.body;
-    
+    const { company_name, position, startDate, endDate, about_experience } =
+      req.body;
+
     // Validate required fields
     if (!company_name) {
       return res.status(400).json({
         error: true,
-        message: "Company name is required"
+        message: "Company name is required",
       });
     }
-    
+
     if (!position) {
       return res.status(400).json({
         error: true,
-        message: "Position is required"
+        message: "Position is required",
       });
     }
-    
+
     if (!startDate) {
       return res.status(400).json({
         error: true,
-        message: "Start date is required"
+        message: "Start date is required",
       });
     }
-    
-    if (!endDate) {
-      return res.status(400).json({
-        error: true,
-        message: "End date is required"
-      });
-    }
-    
+
     // Get teacher ID from authenticated token
     const teacherId = req.user.user._id;
-    
+
     // Create new experience entry
     const experienceEntry = new Experience({
       company_name,
       position,
       startDate: new Date(startDate),
-      endDate: new Date(endDate),
+      ...(endDate && { endDate: new Date(endDate) }), // Conditionally add endDate
       about_experience,
-      teacherId
+      teacherId,
     });
-    
+
     // Save the experience entry
     await experienceEntry.save();
-    
+
     // Respond with the created experience entry
     return res.status(201).json({
       error: false,
@@ -515,19 +582,18 @@ app.post("/create-experience", authenticateToken, async (req, res) => {
         position: experienceEntry.position,
         startDate: experienceEntry.startDate,
         endDate: experienceEntry.endDate,
-        about_experience: experienceEntry.about_experience
+        about_experience: experienceEntry.about_experience,
       },
-      message: "Experience entry created successfully"
+      message: "Experience entry created successfully",
     });
   } catch (error) {
     console.error("Create experience error:", error);
     return res.status(500).json({
       error: true,
-      message: "Failed to create experience entry"
+      message: "Failed to create experience entry",
     });
   }
 });
-
 
 // Get Experiences by Teacher ID
 app.get("/get-teacher-experiences/:teacherId", async (req, res) => {
@@ -538,7 +604,7 @@ app.get("/get-teacher-experiences/:teacherId", async (req, res) => {
     if (!teacherId) {
       return res.status(400).json({
         error: true,
-        message: "Teacher ID is required"
+        message: "Teacher ID is required",
       });
     }
 
@@ -549,7 +615,7 @@ app.get("/get-teacher-experiences/:teacherId", async (req, res) => {
     if (experiences.length === 0) {
       return res.status(404).json({
         error: true,
-        message: "No experiences found for this teacher"
+        message: "No experiences found for this teacher",
       });
     }
 
@@ -557,21 +623,16 @@ app.get("/get-teacher-experiences/:teacherId", async (req, res) => {
     return res.json({
       error: false,
       experiences: experiences,
-      message: "Teacher experiences retrieved successfully"
+      message: "Teacher experiences retrieved successfully",
     });
   } catch (error) {
     console.error("Error retrieving teacher experiences:", error);
     return res.status(500).json({
       error: true,
-      message: "Failed to retrieve teacher experiences"
+      message: "Failed to retrieve teacher experiences",
     });
   }
 });
-
-
-
-
-
 
 app.listen(5000);
 

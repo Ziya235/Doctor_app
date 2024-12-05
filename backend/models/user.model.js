@@ -10,15 +10,21 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   experience: { type: String },
   about: { type: String },
-  price: { type: Number },
+  price: {
+    type: Number,
+    required: false, // Adjust as needed
+  },
   phone: { type: String },
-  image: String,
   dateOfBirth: {
     type: Date,
-    default: null // Allow null/undefined initially
+    default: null, // Allow null/undefined initially
   },
   avialable: { type: Boolean },
- 
+
+  profileImage: {
+    type: String, // Path to the uploaded image
+    default: null,
+  },
 });
 
 // Add auto-increment plugin to the schema

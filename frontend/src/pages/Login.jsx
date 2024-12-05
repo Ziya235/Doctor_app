@@ -54,15 +54,19 @@ const Login = () => {
       })
       .then((data) => {
         const token = data.accessToken; // Access the token
-        const userId = data.user.id; // Access the user ID
+        const userId = data.user.id;
+        
+        const teacherId = data.user.teacher_id// Access the user ID
 
         // Store the token in cookies
         Cookies.set("token", token, { expires: 7 }); // Expires in 7 days
 
         // Optionally store the user ID in cookies or localStorage
         Cookies.set("userId", userId, { expires: 7 });
-
-        console.log("User ID:", userId); // Log the user ID for debugging
+        Cookies.set("teacherId", teacherId, { expires: 7 });
+        
+        
+        console.log("User ID:", data); // Log the user ID for debugging
 
         // Navigate to the home page
         navigate("/");

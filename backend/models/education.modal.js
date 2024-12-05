@@ -6,7 +6,7 @@ const UniversitySchema = new mongoose.Schema({
   university: { type: String, required: true },
   faculty: { type: String, required: true },
   startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
+  endDate: { type: Date },
   about_university: { type: String },
   teacherId: { 
     type: mongoose.Schema.Types.ObjectId, 

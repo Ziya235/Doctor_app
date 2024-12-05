@@ -6,7 +6,7 @@ const ExperienceSchema = new mongoose.Schema({
   company_name: { type: String, required: true },
   position: { type: String, required: true },
   startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
+  endDate: { type: Date},
   about_experience: { type: String },
   teacherId: { 
     type: mongoose.Schema.Types.ObjectId, 

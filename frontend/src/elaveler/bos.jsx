@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState,useRef } from "react";
 import { AppContext } from "../context/AppContext";
 import { assets } from "../assets/assets";
 import Modal from "react-modal";
@@ -18,230 +18,104 @@ const MyProfile = () => {
 
   // const [docInfo, setDocInfo] = useState(doctors[5]);
 
-  const [openAddEditModal, setOpenAddEditModal] = useState(false);
-  const [openAddEditModal_edu, setOpenAddEditModal_edu] = useState(false);
-  const [openAddEditModal_exp, setOpenAddEditModal_exp] = useState(false);
-
-  useEffect(() => {
-    // Check if any modal is open
-    if (openAddEditModal || openAddEditModal_edu || openAddEditModal_exp) {
-      document.body.style.overflow = "hidden"; // Prevent background scrolling
-    } else {
-      document.body.style.overflow = ""; // Restore scrolling
-    }
-
-    return () => {
-      document.body.style.overflow = ""; // Clean up on unmount
-    };
-  }, [openAddEditModal, openAddEditModal_edu, openAddEditModal_exp]);
-
   const [isPresent, setIsPresent] = useState(false);
   const [endDate, setEndDate] = useState("");
+
+  
+  const userId = Cookies.get("userId");
+  const token = Cookies.get("token");
+  console.log(userId);
 
   const handlePresentCheckboxChange = (e) => {
     setIsPresent(e.target.checked);
     if (e.target.checked) {
-      setEndDate("");
-      setEducationEndDate("");
-      setExperienceEndDate(""); // Clear the end date when Present is checked
+      setEndDate(""); // Clear the end date when Present is checked
     }
   };
 
-  const [valid, setValid] = useState(true);
-
-  // const handleChange = (value) => {
-  //   setPhoneNumber(value);
-  //   setValid(value.length >= 10); // Example validation (adjust as needed)
-  // };
-
-  // Ref for file input
-
-  const [profileData, setProfilData] = useState(null);
-
-  const userId = Cookies.get("userId");
-  const token = Cookies.get("token");
-  const teacherId = Cookies.get("teacherId");
-  console.log(userId);
-
+  const [userData, setUserData] = useState({
+    name: '',
+    surname: '',
+    price: '',
+    about: '',
+    speciality: '',
+    experience: '',
+    phone: '',
+    dateOfBirth: '',
+    profileImage: null,
+    profileData: null
+  });
+  
   useEffect(() => {
-    fetch(`http://localhost:5000/get-user/${userId}`) // Add 'http://' to make it a valid URL
+    fetch(`http://localhost:5000/get-user/${userId}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        return response.json(); // Parse JSON data
+        return response.json();
       })
       .then((data) => {
-        setProfilData(data);
-        setName(data.user.name);
-        setSurname(data.user.surname);
-        setPrice(data.user.price);
-        setAbout_you(data.user.about);
-        setSpeciality(data.user.speciality);
-        setExperience(data.user.experience);
-        setPhoneNumber(data.user.phone);
+        // Format the date
         const formattedDate = data.user.dateOfBirth
           ? new Date(data.user.dateOfBirth).toISOString().split("T")[0]
           : "";
-
-        const profileImageUrl = data.user.profileImage
-          ? `http://localhost:5000/${data.user.profileImage.replace(
-              /\\/g,
-              "/"
-            )}`
+  
+        // Construct profile image URL
+        const profileImageUrl = data.user.profileImage 
+          ? `http://localhost:5000/${data.user.profileImage.replace(/\\/g, '/')}`
           : null;
-        setProfileImage1(profileImageUrl);
-
+  
+        // Update entire state in one go
+        setUserData({
+          name: data.user.name,
+          surname: data.user.surname,
+          price: data.user.price,
+          about: data.user.about,
+          speciality: data.user.speciality,
+          experience: data.user.experience,
+          phone: data.user.phone,
+          dateOfBirth: formattedDate,
+          profileImage: profileImageUrl,
+          profileData: data
+        });
+  
         console.log("Fetched date:", data.user.dateOfBirth);
         console.log("Formatted date:", formattedDate);
-
-        setBirthOfDate(formattedDate);
+        console.log("Profile Image URL:", profileImageUrl);
       })
       .catch((error) => {
         console.error("There was a problem with the fetch operation:", error);
       });
-  }, []);
+  }, [userId]);
 
-  const [universityData, setUniversityData] = useState();
-
-  const [experienceData,setExperienceData] = useState()
-
-  useEffect(() => {
-    try {
-      fetch(`
-        http://localhost:5000/get-teacher-universities/${teacherId}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json(); // Parse JSON data
-        })
-        .then((data) => {
-          console.log(data);
-          setUniversityData(data);
-        });
-    } catch (error) {}
-  }, []);
-
-
-  useEffect(() => {
-    try {
-      fetch(`
-        http://localhost:5000/get-teacher-experiences/${teacherId}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json(); // Parse JSON data
-        })
-        .then((data) => {
-          console.log(data);
-          setExperienceData(data);
-        });
-    } catch (error) {}
-  }, []);
-
-  // Profil Data States
-  const fileInputRef = useRef(null);
-  const [name, setName] = useState("");
-  const [surname, setSurname] = useState("");
-  const [price, setPrice] = useState();
-  const [speciality, setSpeciality] = useState();
-  const [experience, setExperience] = useState();
-  const [about_you, setAbout_you] = useState();
-  const [birthOfDate, setBirthOfDate] = useState();
-  const [profileImage1, setProfileImage1] = useState();
-  const [phoneNumber, setPhoneNumber] = useState("");
-
+  const [formData, setFormData] = useState({
+    name: "",
+    surname: "",
+    speciality: "",
+    experience: "",
+    about: "",
+    price: "",
+    phone: "",
+    dateOfBirth: "",
+  });
   // State for profile image
   const [profileImage, setProfileImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
 
-  //Education States
+  // State for error and success messages
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const [universityName, setUniversityName] = useState("");
-  const [faculty, setFaculty] = useState("");
-  const [educationStartDate, setEducationStartDate] = useState("");
-  const [educationEndDate, setEducationEndDate] = useState("");
-  const [about_eduaction, setAbout_education] = useState("");
+  // Ref for file input
+  const fileInputRef = useRef(null);
 
-  //Experience States
-  const [companyName, setCompanyName] = useState("");
-  const [position, setPosition] = useState("");
-  const [experienceStartDate, setExperienceStartDate] = useState("");
-  const [experienceEndDate, setExperienceEndDate] = useState("");
-  const [about_experience, setAbout_experience] = useState("");
-
-  //Create Experience POST method
-
-  const AddExperience = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/create-experience`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json", // Add this header
-        },
-        body: JSON.stringify({
-          company_name: companyName,
-          position,
-          startDate: experienceStartDate,
-          endDate: experienceEndDate,
-          about_experience,
-        }),
-      });
-
-      // Debug logging
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server error response:", errorText);
-        throw new Error("Failed to update user details");
-      }
-
-      const result = await response.json();
-      console.log("User updated successfully:", result);
-
-      alert("User details updated successfully!");
-    } catch (error) {
-      console.error("There was a problem with the update operation:", error);
-      alert("Failed to update user details");
-    }
-  };
-
-  //Create university POST method
-
-  const AddUniversity = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/create-university`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json", // Add this header
-        },
-        body: JSON.stringify({
-          university: universityName,
-          faculty,
-          startDate: educationStartDate,
-          endDate: educationEndDate,
-          about_university: about_eduaction,
-        }),
-      });
-
-      // Debug logging
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server error response:", errorText);
-        throw new Error("Failed to update user details");
-      }
-
-      const result = await response.json();
-      console.log("User updated successfully:", result);
-
-      alert("User details updated successfully!");
-    } catch (error) {
-      console.error("There was a problem with the update operation:", error);
-      alert("Failed to update user details");
-    }
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
   // Handle image file selection
@@ -258,56 +132,121 @@ const MyProfile = () => {
     }
   };
 
-  const handleSaveProfilData = async () => {
-    // Create FormData instead of using JSON
-    const formData = new FormData();
+  const handleSaveProfilData = async (e) => {
+    e.preventDefault();
+
+    // Clear previous messages
+    setError("");
+    setSuccess("");
+
+    // Create form data for multipart/form-data
+    const formDataToSend = new FormData();
 
     // Append all text fields
-    formData.append("name", name);
-    formData.append("surname", surname);
-    formData.append("price", price);
-    formData.append("about", about_you);
-    formData.append("speciality", speciality);
-    formData.append("experience", experience);
-    formData.append("phone", phoneNumber);
-
-    // Append date if exists
-    if (birthOfDate) {
-      const formattedDate = new Date(birthOfDate).toISOString();
-      formData.append("dateOfBirth", formattedDate);
-    }
+    Object.keys(formData).forEach((key) => {
+      formDataToSend.append(key, formData[key]);
+    });
 
     // Append profile image if exists
     if (profileImage) {
-      formData.append("profileImage", profileImage);
+      formDataToSend.append("profileImage", profileImage);
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/update-profile`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          // DO NOT set Content-Type header when sending FormData
-        },
-        body: formData,
-      });
+      // Get authentication token (adjust based on your auth method)
+      const token = Cookies.get("token");
 
-      // Debug logging
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server error response:", errorText);
-        throw new Error("Failed to update user details");
-      }
+      // Make API call
+      const response = await axios.put(
+        "http://localhost:5000/update-profile",
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      const result = await response.json();
-      console.log("User updated successfully:", result);
+      // Handle successful response
+      setSuccess(response.data.message);
 
-      alert("User details updated successfully!");
-    } catch (error) {
-      console.error("There was a problem with the update operation:", error);
-      alert("Failed to update user details");
+      // Optional: Update user info in local storage or context
+      localStorage.setItem("userProfile", JSON.stringify(response.data.user));
+    } catch (err) {
+      // Handle errors
+      const errorMsg =
+        err.response?.data?.message || "Failed to update profile";
+      setError(errorMsg);
     }
   };
+
+  // const [valid, setValid] = useState(true);
+
+  // const handleChange = (value) => {
+  //   setPhoneNumber(value);
+  //   setValid(value.length >= 10); // Example validation (adjust as needed)
+  // };
+
+  const [openAddEditModal, setOpenAddEditModal] = useState(false);
+  const [openAddEditModal_edu, setOpenAddEditModal_edu] = useState(false);
+  const [openAddEditModal_exp, setOpenAddEditModal_exp] = useState(false);
+
+  const [profileData, setProfilData] = useState(null);
+
+  useEffect(() => {
+    // Check if any modal is open
+    if (openAddEditModal || openAddEditModal_edu || openAddEditModal_exp) {
+      document.body.style.overflow = "hidden"; // Prevent background scrolling
+    } else {
+      document.body.style.overflow = ""; // Restore scrolling
+    }
+
+    return () => {
+      document.body.style.overflow = ""; // Clean up on unmount
+    };
+  }, [openAddEditModal, openAddEditModal_edu, openAddEditModal_exp]);
+
+
+  // useEffect(() => {
+  //   fetch(`http://localhost:5000/get-user/${userId}`)
+  //     .then((response) => {
+  //       if (!response.ok) {
+  //         throw new Error("Network response was not ok");
+  //       }
+  //       return response.json();
+  //     })
+  //     .then((data) => {
+  //       // Set all the previous state variables
+  //       setProfilData(data);
+  //       setName(data.user.name);
+  //       setSurname(data.user.surname);
+  //       setPrice(data.user.price);
+  //       setAbout_you(data.user.about);
+  //       setSpeciality(data.user.speciality);
+  //       setExperience(data.user.experience);
+  //       setPhoneNumber(data.user.phone);
+
+  //       // Handle the profile image
+  //       const profileImageUrl = data.user.profileImage
+  //         ? `http://localhost:5000/${data.user.profileImage.replace(/\\/g, '/')}`
+  //         : null;
+  //       setProfileImage(profileImageUrl);
+
+  //       const formattedDate = data.user.dateOfBirth
+  //         ? new Date(data.user.dateOfBirth).toISOString().split("T")[0]
+  //         : "";
+
+  //       console.log("Fetched date:", data.user.dateOfBirth);
+  //       console.log("Formatted date:", formattedDate);
+  //       console.log("Profile Image URL:", profileImageUrl);
+
+  //       setBirthOfDate(formattedDate);
+  //     })
+  //     .catch((error) => {
+  //       console.error("There was a problem with the fetch operation:", error);
+  //     });
+  // }, []);
 
   const formatPhoneNumber = (phone) => {
     if (!phone || typeof phone !== "string") return phone; // Handle invalid input
@@ -318,6 +257,34 @@ const MyProfile = () => {
 
     return `${match[1]}-${match[2]}-${match[3]}-${match[4]}-${match[5]}`;
   };
+
+  const experiences = [
+    {
+      id: 1,
+      companyName: "Harvard University",
+      title: "Bachelor of Science",
+      startingDate: "09/01/2015",
+      endDate: "06/01/2019",
+      description:
+        "Studied computer science with a focus on AI and machine learning. Studied computer science with a focus on AI and machine learning.Studied computer science with a focus on AI and machine learning.Studied computer science with a focus on AI and machine learning.Studied computer science with a focus on AI and machine learning.",
+    },
+    {
+      id: 2,
+      companyName: "Stanford University",
+      title: "Master of Science",
+      startingDate: "09/01/2020",
+      endDate: "06/01/2022",
+      description: "Specialized in software engineering and system design.",
+    },
+    {
+      id: 3,
+      companyName: "MIT",
+      title: "PhD in Data Science",
+      startingDate: "09/01/2022",
+      endDate: "Present",
+      description: "Researching advanced algorithms for big data processing.",
+    },
+  ];
 
   const workExperiences = [
     {
@@ -384,15 +351,18 @@ const MyProfile = () => {
   };
   return (
     <>
-      {profileData && (
+    <h1>{userData.name}</h1>
+      {
+      
+      userData && (
         <div>
           {/* ------ Doctor Details-------- */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div>
-              {profileImage1 ? (
+              {profileImage ? (
                 <img
                   className="bg-primary w-full sm:w-72 h-72 sm:h-80 rounded-lg  object-cover"
-                  src={profileImage1}
+                  src={profileImage}
                   alt=""
                 />
               ) : (
@@ -407,13 +377,13 @@ const MyProfile = () => {
             <div className="flex-1 border border-gray-400 rounded-lg px-8 py-8 bg-white mx-2 sm:mx-0 mt-[-80px] sm:mt-0 pb-[-4rem]  relative">
               {/* ---------Doc Info: name, degree, experience--------- */}
               <p className="flex items-center gap-2 text-2xl font-medium text-gray-900">
-                {profileData.user.name} {profileData.user.surname}
+              {userData.name} {userData.surname}
                 <img src={assets.verified_icon} alt="" />
               </p>
               <div className="flex items-center gap-2 text-sm mt-1 text-gray-600">
-                <p>{profileData.user.speciality} teacher</p>
+                <p>{userData.speciality} teacher</p>
                 <button className="py-0.5 px-2 border text-xs rounded-full ">
-                  {profileData.user.experience}
+                  {userData.experience}
                 </button>
               </div>
 
@@ -424,14 +394,14 @@ const MyProfile = () => {
                   <img src={assets.info_icon} alt="" />
                 </p>
                 <p className="text-sm text-gray-500 max-w-[700px] mt-1">
-                  {profileData.user.about}
+                  {userData.about}
                 </p>
               </div>
 
               <p className="text-gray-500 font-medium mt-4">
                 Price :{" "}
                 <span className="text-gray-600">
-                  {currencySymbol} {profileData.user.price}
+                  {currencySymbol} {userData.price}
                 </span>
               </p>
 
@@ -439,7 +409,7 @@ const MyProfile = () => {
                 <p className="text-gray-500 font-medium mt-4">
                   Phone :{" "}
                   <span className="text-gray-600">
-                    {formatPhoneNumber(profileData.user.phone)}
+                    {formatPhoneNumber(userData.phone)}
                   </span>
                 </p>
                 <p className="text-gray-500 font-medium mt-4 flex items-center space-x-2">
@@ -447,12 +417,12 @@ const MyProfile = () => {
                     Date of Birth:
                   </span>
                   <span className="text-gray-600">
-                    {formatDateOfBirth(profileData.user.dateOfBirth)}
+                    {formatDateOfBirth(userData.dateOfBirth)}
                   </span>
                   <span className="text-sm text-gray-500">
                     (Age:{" "}
                     <span className="text-blue-600 font-semibold">
-                      {calculateAge(profileData.user.dateOfBirth)}
+                      {calculateAge(userData.dateOfBirth)}
                     </span>
                     )
                   </span>
@@ -493,37 +463,28 @@ const MyProfile = () => {
 
           {/* Image Upload Section */}
           <div className="flex items-center gap-4 mb-8">
-            <div className="mb-4">
-              <label className="block mb-2 font-bold">Profile Image</label>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImageChange}
-                accept="image/*"
-                className="hidden"
-              />
-              <div
-                onClick={() => fileInputRef.current.click()}
-                className="cursor-pointer w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden border-2 border-gray-300"
-              >
-                {previewImage ? (
-                  <img
-                    src={previewImage}
-                    alt="Profile Preview"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <img
-                    src={previewImage || profileImage1 || assets.noAvatar}
-                    alt="Profile Image"
-                    className="w-full h-full object-cover sm:w-72 sm:h-80 rounded-lg bg-primary"
-                    onError={(e) => {
-                      // Handle error, e.g., display a default image or error message
-                      e.target.src = assets.noAvatar; // Replace with your error handling logic
-                    }}
-                  />
-                )}
-              </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              accept="image/*"
+              className="hidden"
+            />
+            <div
+              onClick={() => fileInputRef.current.click()}
+              className="cursor-pointer w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden border-2 border-gray-300"
+            >
+              {previewImage ? (
+                <img
+                  src={previewImage}
+                  alt="Profile Preview"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  Upload Image
+                </div>
+              )}
             </div>
             <div>
               <p className="text-lg font-semibold text-gray-800">Upload Your</p>
@@ -540,10 +501,9 @@ const MyProfile = () => {
                   Your Name
                 </label>
                 <input
-                  onChange={(e) => {
-                    setName(e.target.value);
-                  }}
-                  value={name}
+                  value={formData.name}
+                  onChange={handleChange}
+                  name="name"
                   type="text"
                   placeholder="Name"
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
@@ -554,10 +514,9 @@ const MyProfile = () => {
                   Your Surname
                 </label>
                 <input
-                  onChange={(e) => {
-                    setSurname(e.target.value);
-                  }}
-                  value={surname}
+                  value={formData.surname}
+                  onChange={handleChange}
+                  name="surname"
                   type="text"
                   placeholder="Surname"
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
@@ -568,12 +527,10 @@ const MyProfile = () => {
                   Fees
                 </label>
                 <input
-                  onChange={(e) => {
-                    setPrice(e.target.value);
-                  }}
-                  defaultValue={0}
-                  value={price}
+                  value={formData.price}
+                  onChange={handleChange}
                   type="number"
+                  name = "price"
                   placeholder="Fees"
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                 />
@@ -584,19 +541,18 @@ const MyProfile = () => {
                 </label>
                 <select
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                  defaultValue={experience} // Use value instead of defaultValue
-                  onChange={(e) => setExperience(e.target.value)}
+                  name="experience"
+                  value={formData.experience}
+                  onChange={(e) => handleExperienceChange(e.target.value)}
                 >
                   <option value="" disabled hidden>
                     Choose your experience
                   </option>
-                  <option value="1years">1 Years</option>
-                  <option value="2years">2 Years</option>
-                  <option value="3years">3 Years</option>
-                  <option value="4years">4 Years</option>
-                  <option value="5years">5 Years</option>
-                  <option value="6years">6 Years</option>
-                  <option value="7years">7 Years</option>
+                  {[1, 2, 3, 4, 5, 6, 7].map((years) => (
+                    <option key={years} value={`${years}years`}>
+                      {years} {years === 1 ? "Year" : "Years"}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="mb-4">
@@ -604,12 +560,9 @@ const MyProfile = () => {
                   Age
                 </label>
                 <input
-                  value={birthOfDate}
-                  onChange={(e) => {
-                    const selectedDate = e.target.value;
-                    console.log("Selected date:", selectedDate);
-                    setBirthOfDate(selectedDate);
-                  }}
+                  value={formData.dateOfBirth}
+                  onChange={handleChange}
+                  name="dateOfBirth"
                   type="date"
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                 />
@@ -628,9 +581,9 @@ const MyProfile = () => {
                 <PhoneInput
                   id="phone-number"
                   country="az"
-                  value={phoneNumber}
                   placeholder="+111 (11) 111-11-11"
-                  onChange={(phone) => setPhoneNumber(phone)}
+                  value={formData.phone}
+                  onChange={handleChange}
                   inputProps={{
                     required: true,
                   }}
@@ -652,7 +605,9 @@ const MyProfile = () => {
                 </label>
                 <select
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                  defaultValue={speciality ? speciality : ""}
+                  name="speciality"
+                  value={formData.speciality}
+                  onChange={handleChange}
                 >
                   <option value="" disabled hidden>
                     Choose your speciality
@@ -668,10 +623,9 @@ const MyProfile = () => {
                   About you
                 </label>
                 <textarea
-                  onChange={(e) => {
-                    setAbout_you(e.target.value);
-                  }}
-                  value={about_you}
+                  name="about"
+                  value={formData.about}
+                  onChange={handleChange}
                   placeholder="Write information about you"
                   rows={6}
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
@@ -704,40 +658,37 @@ const MyProfile = () => {
         {/* Card Body */}
         <div className="p-6">
           <div className="flex flex-col items-center">
-            {universityData &&
-              universityData.universities.map((item) => (
-                <div key={item.id} className="w-full mb-6">
-                  <div className="flex justify-between">
-                    <div className="pt-10">
-                      <div className="flex gap-6 items-center ml-5">
-                        {/* Icon Box */}
-                        <div>
-                          <FaGraduationCap className="text-blue-600 text-4xl" />
-                        </div>
+            {experiences.map((item) => (
+              <div key={item.id} className="w-full mb-6">
+                <div className="flex justify-between">
+                  <div className="pt-10">
+                    <div className="flex gap-6 items-center ml-5">
+                      {/* Icon Box */}
+                      <div>
+                        <FaGraduationCap className="text-blue-600 text-4xl" />
+                      </div>
 
-                        {/* Education Details */}
-                        <div className="flex flex-col gap-1">
-                          <p className="font-bold text-lg">
-                            {item.university} ---- {item.faculty}
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <GoClock />
-                            <p className="text-sm text-gray-600">
-                              {new Date(item.startDate).toLocaleDateString()} -{" "}
-                              {item.endDate
-                                ? new Date(item.endDate).toLocaleDateString()
-                                : "present"}
-                            </p>
-                          </div>
-                          <p className="text-gray-600">
-                            {item.about_university}
+                      {/* Education Details */}
+                      <div className="flex flex-col gap-1">
+                        <p className="font-bold text-lg">
+                          {item.companyName} ---- {item.title}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <GoClock />
+                          <p className="text-sm text-gray-600">
+                            {new Date(item.startingDate).toLocaleDateString()} -{" "}
+                            {item.endDate === "Present"
+                              ? "Present"
+                              : new Date(item.endDate).toLocaleDateString()}
                           </p>
                         </div>
+                        <p className="text-gray-600">{item.description}</p>
                       </div>
                     </div>
                   </div>
                 </div>
-              ))}
+              </div>
+            ))}
 
             {/* Add Education Button */}
             <div
@@ -784,10 +735,6 @@ const MyProfile = () => {
                     Universitet adı
                   </label>
                   <input
-                    value={universityName}
-                    onChange={(e) => {
-                      setUniversityName(e.target.value);
-                    }}
                     type="text"
                     placeholder="Universitet adı"
                     className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
@@ -798,10 +745,6 @@ const MyProfile = () => {
                     İxtisas
                   </label>
                   <input
-                    value={faculty}
-                    onChange={(e) => {
-                      setFaculty(e.target.value);
-                    }}
                     type="text"
                     placeholder="İxtisas"
                     className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
@@ -814,10 +757,6 @@ const MyProfile = () => {
                     Start date
                   </label>
                   <input
-                    value={educationStartDate}
-                    onChange={(e) => {
-                      setEducationStartDate(e.target.value);
-                    }}
                     type="date"
                     className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                   />
@@ -833,10 +772,8 @@ const MyProfile = () => {
                       className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                       disabled={isPresent}
                       placeholder="mm/dd/yyyy"
-                      value={isPresent ? "" : educationEndDate}
-                      onChange={(e) => {
-                        setEducationEndDate(e.target.value);
-                      }}
+                      value={isPresent ? "" : endDate} // Reset value when "Present" is checked
+                      onChange={(e) => setEndDate(e.target.value)}
                     />
                     <div className="flex items-center">
                       <input
@@ -863,21 +800,12 @@ const MyProfile = () => {
                   About you
                 </label>
                 <textarea
-                  value={about_eduaction}
-                  onChange={(e) => {
-                    setAbout_education(e.target.value);
-                  }}
                   placeholder="Write information about you"
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none resize-none h-32"
                 />
               </div>
               <div className="flex items-center justify-center lg:items-start lg:justify-end">
-                <button
-                  onClick={() => {
-                    AddUniversity();
-                  }}
-                  className="w-full lg:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition-all duration-200 ease-in-out"
-                >
+                <button className="w-full lg:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition-all duration-200 ease-in-out">
                   Save
                 </button>
               </div>
@@ -899,7 +827,7 @@ const MyProfile = () => {
         {/* Card Body */}
         <div className="p-6">
           <div className="flex flex-col items-center">
-            {experienceData && experienceData.experiences.map((item) => (
+            {workExperiences.map((item) => (
               <div key={item.id} className="w-full mb-6">
                 <div className="flex justify-between">
                   <div className="pt-10">
@@ -912,18 +840,18 @@ const MyProfile = () => {
                       {/* Experience Details */}
                       <div className="flex flex-col gap-1">
                         <p className="font-bold text-lg">
-                          {item.companyName} ---- {item.position}
+                          {item.companyName} ---- {item.title}
                         </p>
                         <div className="flex items-center gap-2">
                           <GoClock />
                           <p className="text-sm text-gray-600">
-                              {new Date(item.startDate).toLocaleDateString()} -{" "}
-                              {item.endDate
-                                ? new Date(item.endDate).toLocaleDateString()
-                                : "present"}
-                            </p>
+                            {new Date(item.startingDate).toLocaleDateString()} -{" "}
+                            {item.endDate === "Present"
+                              ? "Present"
+                              : new Date(item.endDate).toLocaleDateString()}
+                          </p>
                         </div>
-                        <p className="text-gray-600">{item.about_experience}</p>
+                        <p className="text-gray-600">{item.description}</p>
                       </div>
                     </div>
                   </div>
@@ -974,8 +902,6 @@ const MyProfile = () => {
                     Şirkətin adı
                   </label>
                   <input
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
                     type="text"
                     placeholder="Şirkətin adı"
                     className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
@@ -986,8 +912,6 @@ const MyProfile = () => {
                     Vəzifə
                   </label>
                   <input
-                    value={position}
-                    onChange={(e) => setPosition(e.target.value)}
                     type="text"
                     placeholder="Vəzifə"
                     className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
@@ -1000,10 +924,6 @@ const MyProfile = () => {
                     Start date
                   </label>
                   <input
-                    value={experienceStartDate}
-                    onChange={(e) => {
-                      setExperienceStartDate(e.target.value);
-                    }}
                     type="date"
                     className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                   />
@@ -1014,15 +934,13 @@ const MyProfile = () => {
                   </label>
                   <div className="flex items-center gap-4">
                     <input
-                     type="date"
-                     id="endDate"
-                     className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                     disabled={isPresent}
-                     placeholder="mm/dd/yyyy"
-                     value={isPresent ? "" : experienceEndDate}
-                     onChange={(e) => {
-                       setExperienceEndDate(e.target.value);
-                     }}
+                      type="date"
+                      id="endDate"
+                      className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                      disabled={isPresent}
+                      placeholder="mm/dd/yyyy"
+                      value={isPresent ? "" : endDate} // Reset value when "Present" is checked
+                      onChange={(e) => setEndDate(e.target.value)}
                     />
                     <div className="flex items-center">
                       <input
@@ -1049,18 +967,12 @@ const MyProfile = () => {
                   About work
                 </label>
                 <textarea
-                value={about_experience}
-                onChange={(e)=>setAbout_experience(e.target.value)}
                   placeholder="Write information about work"
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none resize-none h-32"
                 />
               </div>
               <div className="flex items-center justify-center lg:items-start lg:justify-end">
-                <button 
-                 onClick={() => {
-                  AddExperience();
-                }}
-                className="w-full lg:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition-all duration-200 ease-in-out">
+                <button className="w-full lg:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition-all duration-200 ease-in-out">
                   Save
                 </button>
               </div>

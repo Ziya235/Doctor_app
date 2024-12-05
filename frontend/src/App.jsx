@@ -11,8 +11,8 @@ import Appointment from "./pages/Appointment";
 import Footer from "./components/Footer";
 import GoogleMap from "./elaveler/post_map";
 import Register from "./pages/Register";
-import MyComponent from "./pages/Salam";
 import Modal from 'react-modal';
+import ProfileUpdateForm from "./pages/Salam";
 
 // Set the app element (usually your root div)
 Modal.setAppElement('#root'); 
@@ -31,7 +31,7 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/map" element={<GoogleMap />} />
-          <Route path="/salam" element={<MyComponent />} />
+          <Route path="/salam" element={<ProfileUpdateForm />} />
           <Route path="/my-profile" element={<MyProfile />} />
           <Route path="/appointment/:docId" element={<Appointment />} />
         </Routes>
