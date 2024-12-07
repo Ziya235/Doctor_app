@@ -1,8 +1,9 @@
-"use client";
 import React, { useState } from "react";
 import { FaArrowRight, FaEnvelope, FaLock } from "react-icons/fa";
 import Cookies from "js-cookie";
 import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
   const [isFocused, setIsFocused] = useState(false);
@@ -53,28 +54,30 @@ const Login = () => {
         return response.json(); // Parse the response as JSON
       })
       .then((data) => {
-        const token = data.accessToken; // Access the token
+        // Display success toast
+        toast.success("Login successful!", {
+          autoClose: 5000,
+        });
+
+        const token = data.accessToken;
         const userId = data.user.id;
-        
-        const teacherId = data.user.teacher_id// Access the user ID
+        const teacherId = data.user.teacher_id;
 
         // Store the token in cookies
         Cookies.set("token", token, { expires: 7 }); // Expires in 7 days
-
-        // Optionally store the user ID in cookies or localStorage
         Cookies.set("userId", userId, { expires: 7 });
         Cookies.set("teacherId", teacherId, { expires: 7 });
-        
-        
-        console.log("User ID:", data); // Log the user ID for debugging
+
 
         // Navigate to the home page
         navigate("/");
       })
-      .catch(() => {
-        // toast.error("Username or password is wrong");
-        console.log("salam");
-        
+      .catch((error) => {
+        // Display error toast
+        toast.error("Email or password is incorrect!", {
+          autoClose: 3000,
+        });
+        console.log("Error:", error);
       });
   };
 
@@ -82,23 +85,23 @@ const Login = () => {
     <div className="bg-white shadow-md w-4/5 lg:w-1/2 mx-auto pb-8">
       <div className="flex justify-start  border-blue-500">
         <p className="py-4 px-16 text-blue-500 text-base border-b-2 border-blue-500 cursor-pointer hover:text-black">
-          Daxil ol
+          Login
         </p>
         <p className="py-4 px-16 text-gray-500 cursor-pointer">
           <Link to="/register" className="hover:text-black">
-            Qeydiyyat
+            Register
           </Link>
         </p>
       </div>
 
       <div className="flex flex-col items-center mt-8 space-y-2">
         <h1 className="font-bold text-lg lg:text-2xl">
-          Sizi yenidən görməyə şadıq!
+        We are glad to see you again!
         </h1>
         <p className="text-sm lg:text-base text-gray-600">
-          Hesabınız yoxdur?{" "}
+        Don't have an account? {" "}
           <Link to="/register" className="text-blue-500 hover:underline">
-            Qeydiyyatdan keçin!
+          Sign up!
           </Link>
         </p>
       </div>
@@ -151,15 +154,6 @@ const Login = () => {
           {errors.password && (
             <p className="text-red-500 text-sm mt-1">{errors.password}</p>
           )}
-          {/* 
-          <div className=" mb-6">
-            <a
-              href="/forgotPassword"
-              className="text-sm text-blue-500 hover:underline"
-            >
-              Parolu unutmusan?
-            </a>
-          </div> */}
 
           <div
             className="mb-4 mt-6"
@@ -178,6 +172,9 @@ const Login = () => {
           </div>
         </form>
       </div>
+
+      {/* ToastContainer should be rendered here */}
+      <ToastContainer />
     </div>
   );
 };

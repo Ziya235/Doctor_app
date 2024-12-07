@@ -70,7 +70,6 @@ const Navbar = () => {
     Cookies.remove("teacherId");
     Cookies.remove("userId");
     setIsProfileOpen(false);
-    console.log("Logging out");
     navigate("/login")
   };
 

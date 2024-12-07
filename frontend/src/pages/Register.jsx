@@ -4,6 +4,9 @@ import Cookies from "js-cookie";
 import { PiUserListFill } from "react-icons/pi";
 import { Link, useNavigate } from "react-router-dom";
 
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+
 const Register = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [isFocused2, setIsFocused2] = useState(false);
@@ -38,10 +41,10 @@ const Register = () => {
   const validateForm = () => {
     let formErrors = {};
     if (!name) {
-      formErrors.name = "Adınızı yazın";
+      formErrors.name = "Name is required";
     }
     if (!surname) {
-      formErrors.surname = "Soyadınızı yazın";
+      formErrors.surname = "Surname is required";
     }
     if (!email) {
       formErrors.email = "Email is required";
@@ -67,7 +70,6 @@ const Register = () => {
       return;
     }
 
-    console.log(speciality);
 
     fetch("http://localhost:5000/create-account", {
       method: "POST",
@@ -91,13 +93,15 @@ const Register = () => {
         Cookies.set("userId", userId, { expires: 7 });
         Cookies.set("teacherId", teacherId, { expires: 7 });
 
-        console.log("User ID:", data); // Log the user ID for debugging
 
         // Navigate to the home page
         navigate("/");
       })
       .catch(() => {
         console.log("error");
+        toast.error("Email  is already exists!", {
+          autoClose: 3000,
+        });
       });
   };
 
@@ -106,11 +110,11 @@ const Register = () => {
       <div className="flex justify-start  border-blue-500">
         <p className="py-4 px-16 text-gray-500 cursor-pointer">
           <Link to="/login" className="hover:text-black">
-            Daxil ol
+            Login
           </Link>
         </p>
         <p className="py-4 px-16 text-blue-500 text-base border-b-2 border-blue-500 cursor-pointer hover:text-black">
-          Qeydiyyat
+          Register
         </p>
       </div>
 
@@ -119,7 +123,7 @@ const Register = () => {
           className="font-bold text-lg lg:text-2xl"
           style={{ fontSize: "26px" }}
         >
-          Gəlin hesab açaq!
+          Let's create an account!
         </h1>
       </div>
 
@@ -252,6 +256,9 @@ const Register = () => {
               Qeydiyyatdan keç
               {isHovered && <FaArrowRight className="ml-2" />}
             </button>
+            
+      {/* ToastContainer should be rendered here */}
+      <ToastContainer />
           </div>
         </form>
       </div>

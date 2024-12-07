@@ -12,11 +12,10 @@ const AboutSection = () => {
             className="bg-bottom bg-contain bg-no-repeat text-4xl lg:text-5xl font-medium min-h-[76px]"
             style={{ backgroundImage: `url(${assets.underline})` }}
           >
-            Missiyamiz
+           Our mission
           </h2>
           <p className="w-full lg:w-[400px] text-lg lg:text-xl font-normal">
-            Şagirdlərin özlərinə uyğun müəllimləri asanlıqla taparaq, təhsil
-            həyatlarında uğur qazanmalarına dəstək olmaqdır.
+          To support students in their academic success by easily finding the right teachers for them.
           </p>
         </div>
 
@@ -31,42 +30,40 @@ const AboutSection = () => {
       <div className="flex flex-col lg:flex-row gap-5 bg-white shadow-lg min-h-[384px]">
         {/* Left Section */}
         <div className="p-5 flex flex-col items-center text-center w-full lg:w-1/2">
-          <h2 className="text-5xl font-medium mb-3">Dəyərlərimiz</h2>
+      <h2 className="text-5xl font-medium mb-3">Our Values</h2>
 
-          <div className="my-2">
-            <h4 className="text-xl font-semibold">Şəffafıq.</h4>
-            <p>
-              Açıq və dürüstük. Yaxşı və pis olmasından asılı olmayaraq
-              məlumatları paylaşırıq. Davamlı olaraq təcrübələrimizdən
-              öyrənirik.
-            </p>
-          </div>
+      <div className="my-2">
+        <h4 className="text-xl font-semibold">Transparency.</h4>
+        <p>
+          Openness and honesty. We share information regardless of whether it's
+          good or bad. We constantly learn from our experiences.
+        </p>
+      </div>
 
-          <div className="my-2">
-            <h4 className="text-xl font-semibold">Yenilikçiyik.</h4>
-            <p>
-              Biz fəal şəkildə Doqquz-un missiyasını davam etdirmək üçün yeni və
-              fərqli yollar izləyirik. Özümüzə meydan oxuyaraq öz yolumuzu
-              cızırıq.
-            </p>
-          </div>
-          <div className="my-2">
-            <h4 className="text-xl font-semibold">Biz bir komandayıq.</h4>
-            <p>
-              Hörmət və bir-birimizə qayğı ilə birlikdə işləyirik. Birlikdə
-              əylənirik. Komandamız vəzifə və hədəflərimizə əsaslanaraq çox
-              çalışır.
-            </p>
-          </div>
+      <div className="my-2">
+        <h4 className="text-xl font-semibold">We are Innovators.</h4>
+        <p>
+          We actively pursue new and different ways to continue the mission of
+          Doqquz. We challenge ourselves and pave our own path.
+        </p>
+      </div>
 
-          <div className="my-2">
-            <h4 className="text-xl font-semibold">Biz əzmkarıq.</h4>
-            <p>
-              Dözümlü və təşəbbüskarıq. Çətinlikləri fürsət kimi görürük. Həvəs
-              və cəsarətlə işi başa çatdırmaq üçün bir araya gəlirik.
-            </p>
-          </div>
-        </div>
+      <div className="my-2">
+        <h4 className="text-xl font-semibold">We are a Team.</h4>
+        <p>
+          We work together with respect and care for each other. We have fun
+          together. Our team works hard based on our roles and goals.
+        </p>
+      </div>
+
+      <div className="my-2">
+        <h4 className="text-xl font-semibold">We are Determined.</h4>
+        <p>
+          We are resilient and proactive. We see challenges as opportunities. We
+          come together with enthusiasm and courage to get the job done.
+        </p>
+      </div>
+    </div>
 
         {/* Right Section */}
         <div

@@ -1,9 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
 import { assets } from "../assets/assets";
 
-const TopDoctors = () => {
+const TopTeachers = () => {
   const navigate = useNavigate("");
   const [allTeacher, setAllTeacher] = useState([]);
 
@@ -35,7 +34,6 @@ const TopDoctors = () => {
     }
   }, []);
 
-  const { doctors } = useContext(AppContext);
 
   return (
     <div className="flex flex-col items-center gap-4 my-16 text-gray-900 md:mx-10">
@@ -94,4 +92,4 @@ const TopDoctors = () => {
   );
 };
 
-export default TopDoctors;
+export default TopTeachers;

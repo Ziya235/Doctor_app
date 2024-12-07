@@ -76,7 +76,6 @@ const EducationModal = ({ modalType, fetchData }) => {
       }
 
       const result = await response.json();
-      console.log("User updated successfully:", result);
       fetchData(teacherId);
       modalType(false);
       setUniversityName("");

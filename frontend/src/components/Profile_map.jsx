@@ -28,7 +28,6 @@ const ProfileMap = () => {
       // Add a click event listener to the map
       mapInstance.addListener("click", (e) => {
         const clickedLocation = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-        console.log("Clicked Location:", clickedLocation); // Log clicked location
 
         // Remove the existing marker if it exists
         if (markerRef.current) {

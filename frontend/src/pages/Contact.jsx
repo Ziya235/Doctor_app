@@ -82,7 +82,7 @@ const Contact = () => {
 
   return (
     <div className="container max-w-7xl bg-white shadow-2xl rounded-md p-8">
-      <h2 className="font-bold text-2xl mb-5">Sualınız var? Bizimlə əlaqə qurmaqdan çəkinməyin!</h2>
+      <h2 className="font-bold text-2xl mb-5">Do you have any questions? Don't hesitate to contact us!</h2>
       <hr className="mb-5" />
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col lg:flex-row lg:gap-8 ">

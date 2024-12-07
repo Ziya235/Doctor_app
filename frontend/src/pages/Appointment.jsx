@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { assets } from "../assets/assets";
 
-import RelatedDoctors from "../components/RelatedDoctors";
+import RelatedTeachers from "../components/RelatedTeachers";
 
 import { MdOutlineLibraryBooks } from "react-icons/md";
 import { GoClock } from "react-icons/go";
 import { FaGraduationCap } from "react-icons/fa";
 import { MdWork } from "react-icons/md";
 import { AiOutlineFileText } from "react-icons/ai";
-import InfoMap from "../components/InfoMap";
+
 
 const Appointment = () => {
   const { docId } = useParams();
@@ -32,9 +32,7 @@ const Appointment = () => {
           return response.json(); // Parse JSON data
         })
         .then((data) => {
-          console.log(data);
           setUniversityData(data);
-          console.log(data.universities);
         });
     } catch (error) {}
   }, []);
@@ -50,7 +48,6 @@ const Appointment = () => {
           return response.json(); // Parse JSON data
         })
         .then((data) => {
-          console.log(data);
           setExperienceData(data);
         });
     } catch (error) {}
@@ -151,7 +148,7 @@ const Appointment = () => {
     <>
       {docInfo && (
         <div>
-          {/* Doctor Details */}
+          {/* Teacher Details */}
           <div className="flex flex-col sm:flex-row gap-4">
             <div>
               <img
@@ -180,7 +177,7 @@ const Appointment = () => {
                 )}
               </div>
 
-              {/* Doctor about */}
+              {/* Teacher about */}
               <div>
                 <p className="flex items-center gap-1 text-sm font-medium text-gray-900 mt-3">
                   About
@@ -243,8 +240,8 @@ const Appointment = () => {
         <div className="p-6">
           <div className="flex flex-col items-center">
             {universityData ? (
-              universityData.universities.map((item) => (
-                <div key={item.id} className="w-full mb-6">
+              universityData.universities.map((item,index) => (
+                <div key={item.id || index}  className="w-full mb-6">
                   <div className="flex justify-between">
                     <div className="pt-10">
                       <div className="flex gap-6 items-center ml-5">
@@ -299,8 +296,8 @@ const Appointment = () => {
         <div className="p-6">
           <div className="flex flex-col items-center">
             {experienceData ? (
-              experienceData.experiences.map((item) => (
-                <div key={item.id} className="w-full mb-6">
+              experienceData.experiences.map((item,index) => (
+                <div key={item.id || index} className="w-full mb-6">
                   <div className="flex justify-between">
                     <div className="pt-10">
                       <div className="flex gap-6 items-center ml-5">
@@ -341,17 +338,11 @@ const Appointment = () => {
         </div>
       </div>
 
-      {/* Map Part */}
 
-      <h1 className="text-center my-6 text-4xl font-bold text-gray-800 dark:text-gray-100  ">
-        Location
-      </h1>
-      <InfoMap />
-
-      {/*Related Doctors */}
+      {/*Related Teacher */}
 
       {docInfo && (
-        <RelatedDoctors docId={docId} speciality={docInfo.speciality} />
+        <RelatedTeachers docId={docId} speciality={docInfo.speciality} />
       )}
     </>
   );

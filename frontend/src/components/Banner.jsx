@@ -7,7 +7,6 @@ const Banner = () => {
   const navigate = useNavigate("");
 
   const token = Cookies.get("token");
-  console.log(token);
 
   return (
     <div className="flex bg-primary rounded-lg px-6 sm:px-10 md: px-14 lg:px-12 my-20 md:mx-10">

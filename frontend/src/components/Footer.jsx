@@ -10,10 +10,10 @@ const Footer = () => {
         <div>
           <img className="mb-5 w-40" src={assets.logo} alt="" />
           <p className="w-full md:w-2/3 text-gray-600 leading-6">
-            Müəllim App, şagirdlər və valideynlər üçün müəllimlərlə əlaqə
-            qurmağı asanlaşdıran bir platformadır. Bizim məqsədimiz, təhsil
-            prosesini daha da səmərəli və rahat etməkdir. Müəllimlərin tapılması
-            və onlarla əlaqə qurulması heç vaxt bu qədər asan olmamışdı!
+            Teacher App is a platform that makes it easy for students and
+            parents to connect with teachers. Our goal is to make the
+            educational process more efficient and convenient. Finding and
+            connecting with teachers has never been easier!
           </p>
         </div>
 
@@ -33,7 +33,6 @@ const Footer = () => {
             <Link to="/contact" onClick={() => scrollTo(0, 0)}>
               Contact us
             </Link>
-          
           </ul>
         </div>
 

@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
 
 import {assets} from "../assets/assets"
 
-const Doctors = () => {
+const Teachers = () => {
   const { speciality } = useParams();
   const [allTeacher, setAllTeacher] = useState([]);
   const [filteredTeachers, setFilteredTeachers] = useState([]);
@@ -53,14 +52,14 @@ const Doctors = () => {
 
   // Mapping of display names to actual speciality values
   const specialityMapping = {
-    "Azərbaycan dili": "Azerbaijan Language",
-    "Riyaziyyat": "Math",
+    "Azerbaijan Language": "Azerbaijan Language",
+    "Math": "Math",
     "English": "English",
-    "Fizika": "Physics",
-    "Kimya": "Chemistry",
-    "Coğrafiya": "Geography",
-    "Tarix": "History",
-    "Biologiya": "Biology",
+    "Physics": "Physics",
+    "Chemistry": "Chemistry",
+    "Geography": "Geography",
+    "History": "History",
+    "Biology": "Biology",
     "İelts": "IELTS"
   };
 
@@ -146,4 +145,4 @@ const Doctors = () => {
   );
 };
 
-export default Doctors;
+export default Teachers;

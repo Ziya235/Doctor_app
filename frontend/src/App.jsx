@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
-import Doctors from "./pages/Doctors";
+import Teachers from "./pages/Teachers";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import About from "./pages/About";
@@ -9,7 +9,6 @@ import Contact from "./pages/Contact";
 import MyProfile from "./pages/MyProfile";
 import Appointment from "./pages/Appointment";
 import Footer from "./components/Footer";
-import GoogleMap from "./elaveler/post_map";
 import Register from "./pages/Register";
 import Modal from 'react-modal';
 import ProfileUpdateForm from "./pages/Salam";
@@ -24,13 +23,12 @@ const App = () => {
       <div className="mx-4 sm:mx-[10%]">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/teachers" element={<Doctors />} />
-          <Route path="/teachers/:speciality" element={<Doctors />} />
+          <Route path="/teachers" element={<Teachers />} />
+          <Route path="/teachers/:speciality" element={<Teachers />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/map" element={<GoogleMap />} />
           <Route path="/salam" element={<ProfileUpdateForm />} />
           <Route path="/my-profile" element={<MyProfile />} />
           <Route path="/appointment/:docId" element={<Appointment />} />

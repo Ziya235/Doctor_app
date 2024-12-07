@@ -43,8 +43,14 @@ const MyProfile = () => {
     if (!surname) {
       formErrors.surname = "Surname is required";
     }
-    if (phoneNumber.length < 10) {
+    if(!phoneNumber) {
+      formErrors.phone = "Phone number is required";
+    }
+    if (phoneNumber && phoneNumber.length < 10) {
       formErrors.phone = "Minimum length is 10";
+    }
+    if(!price) {
+      formErrors.price = "Price is required";
     }
     if (price < 1) {
       formErrors.price = "Price must be bigger than 0";
@@ -108,7 +114,6 @@ const MyProfile = () => {
       }
 
       const result = await response.json();
-      console.log("User updated successfully:", result);
       fetchUserData(userId);
       setOpenAddEditModal(false);
     } catch (error) {
@@ -122,7 +127,6 @@ const MyProfile = () => {
   const userId = Cookies.get("userId");
   const token = Cookies.get("token");
   const teacherId = Cookies.get("teacherId");
-  console.log(userId);
 
   const [universityData, setUniversityData] = useState();
 
@@ -160,8 +164,6 @@ const MyProfile = () => {
       setProfileImage1(profileImageUrl);
 
       // Log the dates for debugging
-      console.log("Fetched date:", data.user.dateOfBirth);
-      console.log("Formatted date:", formattedDate);
 
       setBirthOfDate(formattedDate);
     } catch (error) {
@@ -180,7 +182,6 @@ const MyProfile = () => {
       }
 
       const data = await response.json(); // Parse JSON data
-      console.log(data);
       setUniversityData(data.universities); // Update the state with fetched data
     } catch (error) {
       console.error("Error fetching university data:", error); // Handle errors
@@ -191,14 +192,12 @@ const MyProfile = () => {
     const url = `http://localhost:5000/get-teacher-experiences/${teacherId}`;
     try {
       const response = await fetch(url);
-      console.log("Response status:", response.status); // Log response status
 
       if (!response.ok) {
         throw new Error(`Network response was not ok: ${response.statusText}`);
       }
 
       const data = await response.json(); // Parse the JSON data
-      console.log(data); // Log the data
       setExperienceData(data.experiences); // Set the experience data to the state
     } catch (error) {
       console.error("Error fetching data:", error); // Log any errors
@@ -538,7 +537,6 @@ const MyProfile = () => {
                   value={birthOfDate}
                   onChange={(e) => {
                     const selectedDate = e.target.value;
-                    console.log("Selected date:", selectedDate);
                     setBirthOfDate(selectedDate);
                   }}
                   type="date"
@@ -687,11 +685,6 @@ const MyProfile = () => {
         </Modal>
       </div>
 
-      {/* Loaction Part */}
-      <h1 className="text-center my-6 text-4xl font-bold text-gray-800 dark:text-gray-100  ">
-        Location
-      </h1>
-      <ProfileMap />
     </>
   );
 };

@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
-import { AppContext } from "../context/AppContext";
+import React, {  useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {assets} from "../assets/assets"
 
-const RelatedDoctors = ({ docId, speciality }) => {
+const RelatedTeachers = ({ docId, speciality }) => {
 
   const [relDoc, setRelDoc] = useState([]);
 
@@ -23,7 +22,6 @@ const RelatedDoctors = ({ docId, speciality }) => {
           return response.json();
         })
         .then((data) => {
-          console.log(data); // Log the fetched data
           const teachersWithImages = data.users.map(teacher => ({
             ...teacher,
             profileImageUrl: teacher.profileImage
@@ -41,13 +39,11 @@ const RelatedDoctors = ({ docId, speciality }) => {
   }, []);
 
   useEffect(() => {
-    console.log('Speciality:', speciality);
-    console.log('DocId:', docId);
     if (allTeacher.length > 0 && speciality) {
-      const doctorsData = allTeacher.filter(
+      const teachersDate = allTeacher.filter(
         (doc) => doc.speciality === speciality && doc._id !== docId
       );
-      setRelDoc(doctorsData);
+      setRelDoc(teachersDate);
     }
   }, [speciality, docId, allTeacher]);
   return (
@@ -106,4 +102,4 @@ const RelatedDoctors = ({ docId, speciality }) => {
   );
 };
 
-export default RelatedDoctors;
+export default RelatedTeachers;
