@@ -135,7 +135,7 @@ const Doctors = () => {
                   <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                   <p>Available</p>
                 </div>
-                <p className="text-gray-900 text-lg font-medium">{item.name}</p>
+                <p className="text-gray-900 text-lg font-medium">{item.name} {item.surname}</p>
                 <p className="text-gray-600 text-sm">{item.speciality} teacher</p>
               </div>
             </div>

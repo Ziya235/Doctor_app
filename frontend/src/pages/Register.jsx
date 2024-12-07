@@ -17,7 +17,13 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [speciality, setSpeciality] = useState("");
-  const [errors, setErrors] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({
+    name: "",
+    surname: "",
+    email: "",
+    password: "",
+    speciality: "",
+  });
 
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
@@ -44,6 +50,10 @@ const Register = () => {
     }
     if (!password) {
       formErrors.password = "Password is required";
+    }
+
+    if (!speciality) {
+      formErrors.speciality = "Speciality is required";
     }
 
     setErrors(formErrors);
@@ -134,7 +144,7 @@ const Register = () => {
               onChange={(e) => setName(e.target.value)}
             />
           </div>
-          {errors.email && (
+          {errors.name && (
             <p className="text-red-500 text-sm mt-1">{errors.name}</p>
           )}
 
@@ -158,7 +168,7 @@ const Register = () => {
             />
           </div>
 
-          {errors.email && (
+          {errors.surname && (
             <p className="text-red-500 text-sm mt-1">{errors.surname}</p>
           )}
 
@@ -171,7 +181,7 @@ const Register = () => {
               <FaEnvelope />
             </div>
             <input
-              type="email"
+              type="text"
               name="email"
               placeholder="example@gmail.com"
               className="pl-12 pr-4 py-3 w-full border rounded focus:ring focus:ring-blue-500 focus:outline-none"
@@ -213,7 +223,7 @@ const Register = () => {
               value={speciality}
               onChange={(e) => setSpeciality(e.target.value)} // Update the state when an option is selected
               className="block w-full py-3 px-4 border border-gray-300 bg-white rounded focus:ring focus:ring-blue-500 focus:outline-none text-gray-700"
-              required
+              
             >
               <option value="" disabled hidden>
                 Speciality
@@ -223,6 +233,9 @@ const Register = () => {
               <option value="English">English</option>
               <option value="Chemistry">Chemistry</option>
             </select>
+            {errors.speciality && (
+              <p className="text-red-500 text-sm mt-1"> {errors.speciality}</p>
+            )}
           </div>
 
           <div

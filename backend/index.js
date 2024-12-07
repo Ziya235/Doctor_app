@@ -164,7 +164,7 @@ app.post("/create-account", upload.single("profileImage"), async (req, res) => {
         ...user.toObject(),
         userId: user.userId,
         profileImage: user.profileImage || null,
-         teacher_id: user._id  
+        teacher_id: user._id,
       },
       accessToken,
       message: "Registration successful",
@@ -207,7 +207,7 @@ app.post("/login", async (req, res) => {
       user: {
         id: userInfo.userId, // Include the user ID in the response
         email: userInfo.email,
-        teacher_id: userInfo._id
+        teacher_id: userInfo._id,
       },
       accessToken,
     });
@@ -241,13 +241,15 @@ app.get("/get-all-teacher", async (req, res) => {
   }
 });
 
-
 //Update Profil
 // Update profile route with image upload
 app.put(
-  "/update-profile", 
-  authenticateToken, 
-  upload.single('profileImage'), 
+  "/update-profile",
+  authenticateToken,
+  upload.single("profileImage"),
+
+
+  
   async (req, res) => {
     try {
       const {
@@ -262,6 +264,12 @@ app.put(
         available,
       } = req.body;
 
+      if (!name || !surname) {
+        return res.status(400).json({
+          error: true,
+          message: "Name and surname are required.",
+        });
+      }
       // Extract user ID from the authenticated token
       const userId = req.user.user._id;
 
@@ -279,10 +287,15 @@ app.put(
       if (name) user.name = name;
       if (surname) user.surname = surname;
       if (speciality) user.speciality = speciality;
-      if (experience) user.experience = experience;
+      
+      if (experience !== undefined) {
+        user.experience = experience;
+      }
+
       if (about !== undefined) {
         user.about = about;
       }
+
       user.price = price;
       if (phone !== undefined) user.phone = phone;
 
@@ -318,7 +331,7 @@ app.put(
           try {
             fs.unlinkSync(user.profileImage);
           } catch (err) {
-            console.error('Error deleting old profile image:', err);
+            console.error("Error deleting old profile image:", err);
           }
         }
 
@@ -388,15 +401,15 @@ app.get("/get-user/:userId", async (req, res) => {
   }
 });
 
-app.get('/get-teacher/:id', async (req, res) => {
+app.get("/get-teacher/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      return res.status(404).json({ message: 'Teacher not found' });
+      return res.status(404).json({ message: "Teacher not found" });
     }
     res.json({ user });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 

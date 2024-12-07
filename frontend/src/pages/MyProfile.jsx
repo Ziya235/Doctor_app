@@ -3,14 +3,12 @@ import { assets } from "../assets/assets";
 import Modal from "react-modal";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { MdOutlineLibraryBooks } from "react-icons/md";
-import { GoClock } from "react-icons/go";
-import { FaGraduationCap } from "react-icons/fa";
-import { MdAdd } from "react-icons/md";
-import { MdWork } from "react-icons/md";
-import { AiOutlineFileText } from "react-icons/ai";
 import ProfileMap from "../components/Profile_map";
 import Cookies from "js-cookie";
+import EducationCard from "../components/EducationCard";
+import ExperienceCard from "../components/ExperienceCard";
+import EducationModal from "../components/EducationModal";
+import ExperienceModal from "../components/ExperienceModal";
 
 const MyProfile = () => {
   const [openAddEditModal, setOpenAddEditModal] = useState(false);
@@ -30,25 +28,93 @@ const MyProfile = () => {
     };
   }, [openAddEditModal, openAddEditModal_edu, openAddEditModal_exp]);
 
-  const [isPresent, setIsPresent] = useState(false);
-  const [endDate, setEndDate] = useState("");
+  const [errors, setErrors] = useState({
+    name: "",
+    surname: "",
+    fees: "",
+    phone: "",
+  });
 
-  const handlePresentCheckboxChange = (e) => {
-    setIsPresent(e.target.checked);
-    if (e.target.checked) {
-      setEndDate("");
-      setEducationEndDate("");
-      setExperienceEndDate(""); // Clear the end date when Present is checked
+  const validateForm = () => {
+    let formErrors = {};
+    if (!name) {
+      formErrors.name = "Name is required";
     }
+    if (!surname) {
+      formErrors.surname = "Surname is required";
+    }
+    if (phoneNumber.length < 10) {
+      formErrors.phone = "Minimum length is 10";
+    }
+    if (price < 1) {
+      formErrors.price = "Price must be bigger than 0";
+    }
+    setErrors(formErrors);
+    return Object.keys(formErrors).length === 0;
   };
 
-  const [valid, setValid] = useState(true);
 
-  // const handleChange = (value) => {
-  //   setPhoneNumber(value);
-  //   setValid(value.length >= 10); // Example validation (adjust as needed)
-  // };
+  const handleSaveProfilData = async () => {
+    // Create FormData instead of using JSON
+    const formData = new FormData();
+    if (!validateForm()) {
+      return; // If there are errors, don't proceed with the save operation
+    }
 
+    // Append all text fields
+    formData.append("name", name);
+    formData.append("surname", surname);
+    formData.append("price", price);
+    formData.append("about", about_you || "");
+    formData.append("speciality", speciality);
+    formData.append("experience", experience || "");
+    formData.append("phone", phoneNumber || "");
+
+    if (phoneNumber.length < 12) {
+      return; // Exit the function early to prevent the request
+    }
+
+    if(price < 0) {
+      return;
+    }
+
+    // Append date if exists
+    if (birthOfDate) {
+      const formattedDate = new Date(birthOfDate).toISOString();
+      formData.append("dateOfBirth", formattedDate);
+    }
+
+    // Append profile image if exists
+    if (profileImage) {
+      formData.append("profileImage", profileImage);
+    }
+
+
+    try {
+      const response = await fetch(`http://localhost:5000/update-profile`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // DO NOT set Content-Type header when sending FormData
+        },
+        body: formData,
+      });
+
+      // Debug logging
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Server error response:", errorText);
+        throw new Error("Failed to update user details");
+      }
+
+      const result = await response.json();
+      console.log("User updated successfully:", result);
+      fetchUserData(userId);
+      setOpenAddEditModal(false);
+    } catch (error) {
+      console.error("There was a problem with the update operation:", error);
+    }
+  };
   // Ref for file input
 
   const [profileData, setProfilData] = useState(null);
@@ -103,11 +169,6 @@ const MyProfile = () => {
     }
   };
 
-  // Use useEffect to call the async function
-  useEffect(() => {
-    fetchUserData(userId); // Fetch user data when the component mounts or userId changes
-  }, [userId]); //
-
   const fetchUniversityData = async (teacherId) => {
     try {
       const response = await fetch(
@@ -120,17 +181,11 @@ const MyProfile = () => {
 
       const data = await response.json(); // Parse JSON data
       console.log(data);
-      setUniversityData(data); // Update the state with fetched data
+      setUniversityData(data.universities); // Update the state with fetched data
     } catch (error) {
       console.error("Error fetching university data:", error); // Handle errors
     }
   };
-
-  // Use useEffect to call the async function
-  useEffect(() => {
-    fetchUniversityData(teacherId);
-    fetchExperienceData(teacherId); // Call the async function
-  }, [teacherId]); // Ensure teacherId is included in the dependency array
 
   const fetchExperienceData = async (teacherId) => {
     const url = `http://localhost:5000/get-teacher-experiences/${teacherId}`;
@@ -144,11 +199,18 @@ const MyProfile = () => {
 
       const data = await response.json(); // Parse the JSON data
       console.log(data); // Log the data
-      setExperienceData(data); // Set the experience data to the state
+      setExperienceData(data.experiences); // Set the experience data to the state
     } catch (error) {
       console.error("Error fetching data:", error); // Log any errors
     }
   };
+
+  // Use useEffect to call the async function
+  useEffect(() => {
+    fetchUniversityData(teacherId);
+    fetchExperienceData(teacherId);
+    fetchUserData(userId);
+  }, [userId]);
 
   // Profil Data States
   const fileInputRef = useRef(null);
@@ -166,103 +228,6 @@ const MyProfile = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
 
-  //Education States
-
-  const [universityName, setUniversityName] = useState("");
-  const [faculty, setFaculty] = useState("");
-  const [educationStartDate, setEducationStartDate] = useState("");
-  const [educationEndDate, setEducationEndDate] = useState("");
-  const [about_eduaction, setAbout_education] = useState("");
-
-  //Experience States
-  const [companyName, setCompanyName] = useState("");
-  const [position, setPosition] = useState("");
-  const [experienceStartDate, setExperienceStartDate] = useState("");
-  const [experienceEndDate, setExperienceEndDate] = useState("");
-  const [about_experience, setAbout_experience] = useState("");
-
-  //Create Experience POST method
-
-  const AddExperience = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/create-experience`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json", // Add this header
-        },
-        body: JSON.stringify({
-          company_name: companyName,
-          position,
-          startDate: experienceStartDate,
-          endDate: experienceEndDate,
-          about_experience,
-        }),
-      });
-
-      // Debug logging
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server error response:", errorText);
-        throw new Error("Failed to update user details");
-      }
-
-      const result = await response.json();
-      console.log("User updated successfully:", result);
-      fetchExperienceData(teacherId);
-      setOpenAddEditModal_exp(false);
-      setCompanyName("");
-      setPosition("");
-      setExperienceStartDate("");
-      setExperienceEndDate("");
-      setAbout_experience("");
-    } catch (error) {
-      console.error("There was a problem with the update operation:", error);
-      alert("Failed to update user details");
-    }
-  };
-
-  //Create university POST method
-
-  const AddUniversity = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/create-university`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json", // Add this header
-        },
-        body: JSON.stringify({
-          university: universityName,
-          faculty,
-          startDate: educationStartDate,
-          endDate: educationEndDate,
-          about_university: about_eduaction,
-        }),
-      });
-
-      // Debug logging
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server error response:", errorText);
-        throw new Error("Failed to update user details");
-      }
-
-      const result = await response.json();
-      console.log("User updated successfully:", result);
-      fetchUniversityData(teacherId);
-      setOpenAddEditModal_edu(false);
-      setUniversityName("");
-      setFaculty("");
-      setEducationStartDate("");
-      setEducationEndDate("");
-      setAbout_education("");
-    } catch (error) {
-      console.error("There was a problem with the update operation:", error);
-      alert("Failed to update user details");
-    }
-  };
-
   // Handle image file selection
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -277,56 +242,7 @@ const MyProfile = () => {
     }
   };
 
-  const handleSaveProfilData = async () => {
-    // Create FormData instead of using JSON
-    const formData = new FormData();
-
-    // Append all text fields
-    formData.append("name", name);
-    formData.append("surname", surname);
-    formData.append("price", price);
-    formData.append("about", about_you);
-    formData.append("speciality", speciality);
-    formData.append("experience", experience);
-    formData.append("phone", phoneNumber);
-
-    // Append date if exists
-    if (birthOfDate) {
-      const formattedDate = new Date(birthOfDate).toISOString();
-      formData.append("dateOfBirth", formattedDate);
-    }
-
-    // Append profile image if exists
-    if (profileImage) {
-      formData.append("profileImage", profileImage);
-    }
-
-    try {
-      const response = await fetch(`http://localhost:5000/update-profile`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          // DO NOT set Content-Type header when sending FormData
-        },
-        body: formData,
-      });
-
-      // Debug logging
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server error response:", errorText);
-        throw new Error("Failed to update user details");
-      }
-
-      const result = await response.json();
-      console.log("User updated successfully:", result);
-      fetchUserData(userId);
-      setOpenAddEditModal(false)
-    } catch (error) {
-      console.error("There was a problem with the update operation:", error);
-      alert("Failed to update user details");
-    }
-  };
+ 
 
   const formatPhoneNumber = (phone) => {
     if (!phone || typeof phone !== "string") return phone; // Handle invalid input
@@ -414,7 +330,7 @@ const MyProfile = () => {
                   About
                   <img src={assets.info_icon} alt="" />
                 </p>
-                {profileData.user.about ? (
+                {profileData.user.about && profileData.user.about.trim() ? (
                   <p className="text-sm text-gray-500 max-w-[700px] mt-1">
                     {profileData.user.about}
                   </p>
@@ -435,12 +351,18 @@ const MyProfile = () => {
               </p>
 
               <div>
-                <p className="text-gray-500 font-medium mt-4">
-                  Phone :{" "}
-                  <span className="text-gray-600">
-                    {formatPhoneNumber(profileData.user.phone)}
-                  </span>
-                </p>
+                {profileData.user.phone ? (
+                  <p className="text-gray-500 font-medium mt-4">
+                    Phone :{" "}
+                    <span className="text-gray-600">
+                      + {formatPhoneNumber(profileData.user.phone)}
+                    </span>
+                  </p>
+                ) : (
+                  <p className="text-gray-500 font-medium mt-4">
+                    Phone: <span className="text-gray-600">No phone.</span>
+                  </p>
+                )}
                 <div className="flex flex-col lg:flex-row justify-between">
                   <p className="text-gray-500 font-medium mt-4 flex items-center space-x-2">
                     <span className="text-gray-700 font-bold">
@@ -548,6 +470,9 @@ const MyProfile = () => {
                   placeholder="Name"
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                 />
+                 {errors.name && (
+            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+          )}
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -562,6 +487,9 @@ const MyProfile = () => {
                   placeholder="Surname"
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                 />
+                 {errors.surname && (
+            <p className="text-red-500 text-sm mt-1">{errors.surname}</p>
+          )}
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -577,6 +505,9 @@ const MyProfile = () => {
                   placeholder="Fees"
                   className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
                 />
+                   {errors.price && (
+            <p className="text-red-500 text-sm mt-1">{errors.price}</p>
+          )}
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -644,6 +575,11 @@ const MyProfile = () => {
                     borderRight: "none",
                   }}
                 />
+                {errors.phone && (
+                  <div style={{ color: "red", marginTop: "10px" }}>
+                    {errors.phone}
+                  </div>
+                )}
               </div>
 
               <div className="mb-4">
@@ -695,61 +631,11 @@ const MyProfile = () => {
       {/* Education Part */}
       <div className="mt-8 shadow-md rounded-lg border border-gray-200">
         {/* Card Header */}
-        <div className="border-b border-gray-200 p-4">
-          <div className="flex items-center">
-            <AiOutlineFileText size={18} color="blue" />
-            <h2 className="ml-2 text-base font-bold">Təhsil</h2>
-          </div>
-        </div>
 
-        {/* Card Body */}
-        <div className="p-6">
-          <div className="flex flex-col items-center">
-            {universityData &&
-              universityData.universities.map((item, index) => (
-                <div key={item.id || index} className="w-full mb-6">
-                  <div className="flex justify-between">
-                    <div className="pt-10">
-                      <div className="flex gap-6 items-center ml-5">
-                        {/* Icon Box */}
-                        <div>
-                          <FaGraduationCap className="text-blue-600 text-4xl" />
-                        </div>
-
-                        {/* Education Details */}
-                        <div className="flex flex-col gap-1">
-                          <p className="font-bold text-lg">
-                            {item.university} ---- {item.faculty}
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <GoClock />
-                            <p className="text-sm text-gray-600">
-                              {new Date(item.startDate).toLocaleDateString()} -{" "}
-                              {item.endDate
-                                ? new Date(item.endDate).toLocaleDateString()
-                                : "present"}
-                            </p>
-                          </div>
-                          <p className="text-gray-600">
-                            {item.about_university}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-            {/* Add Education Button */}
-            <div
-              onClick={() => setOpenAddEditModal_edu(true)}
-              className="flex items-center gap-1 bg-blue-600 cursor-pointer text-white px-5 py-2 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 transition-all mt-6"
-            >
-              <MdAdd />
-              <button>Əlavə et</button>
-            </div>
-          </div>
-        </div>
+        <EducationCard
+          data={universityData}
+          modalType={setOpenAddEditModal_edu}
+        />
 
         {/* Education Modal */}
 
@@ -765,185 +651,21 @@ const MyProfile = () => {
           className="fixed inset-0 z-50 overflow-y-auto"
           contentLabel=""
         >
-          <div className="add-notes-modal w-full max-w-4xl bg-white rounded-lg mx-auto mt-14 p-8 shadow-lg relative">
-            <div className="flex justify-between items-center mb-4">
-              <h1 className="text-2xl font-bold text-gray-800 tracking-wide">
-                Təhsil
-              </h1>
-              <button
-                className="bg-gray-200 hover:bg-gray-300 text-gray-600 px-3 py-2 rounded-full focus:outline-none"
-                onClick={() => setOpenAddEditModal_edu(false)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="">
-              <div className="flex flex-col lg:gap-8 lg:flex-row">
-                <div className="mb-4 flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Universitet adı
-                  </label>
-                  <input
-                    value={universityName}
-                    onChange={(e) => {
-                      setUniversityName(e.target.value);
-                    }}
-                    type="text"
-                    placeholder="Universitet adı"
-                    className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div className="mb-4 flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    İxtisas
-                  </label>
-                  <input
-                    value={faculty}
-                    onChange={(e) => {
-                      setFaculty(e.target.value);
-                    }}
-                    type="text"
-                    placeholder="İxtisas"
-                    className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col lg:gap-8 lg:flex-row">
-                <div className="mb-4 flex-1 ">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Start date
-                  </label>
-                  <input
-                    value={educationStartDate}
-                    onChange={(e) => {
-                      setEducationStartDate(e.target.value);
-                    }}
-                    type="date"
-                    className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div className="mb-4 flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    End date
-                  </label>
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="date"
-                      id="endDate"
-                      className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                      disabled={isPresent}
-                      placeholder="mm/dd/yyyy"
-                      value={isPresent ? "" : educationEndDate}
-                      onChange={(e) => {
-                        setEducationEndDate(e.target.value);
-                      }}
-                    />
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id="isPresent"
-                        className="mr-2"
-                        checked={isPresent}
-                        onChange={handlePresentCheckboxChange}
-                      />
-                      <label
-                        htmlFor="isPresent"
-                        className="text-sm text-gray-700"
-                      >
-                        Present
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="">
-              <div className="mb-4 flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  About you
-                </label>
-                <textarea
-                  value={about_eduaction}
-                  onChange={(e) => {
-                    setAbout_education(e.target.value);
-                  }}
-                  placeholder="Write information about you"
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none resize-none h-32"
-                />
-              </div>
-              <div className="flex items-center justify-center lg:items-start lg:justify-end">
-                <button
-                  onClick={() => {
-                    AddUniversity();
-                  }}
-                  className="w-full lg:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition-all duration-200 ease-in-out"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          </div>
+          <EducationModal
+            modalType={setOpenAddEditModal_edu}
+            fetchData={fetchUniversityData}
+          />
         </Modal>
       </div>
 
       {/* Experience Part */}
       <div className="mt-8 mb-14 shadow-md rounded-lg border border-gray-200">
         {/* Card Header */}
-        <div className="border-b border-gray-200 p-4">
-          <div className="flex items-center">
-            <MdOutlineLibraryBooks className="text-blue-600 text-lg" />
-            <h2 className="ml-2 text-base font-bold">Təcrübə</h2>
-          </div>
-        </div>
 
-        {/* Card Body */}
-        <div className="p-6">
-          <div className="flex flex-col items-center">
-            {experienceData &&
-              experienceData.experiences.map((item, index) => (
-                <div key={item.id || index} className="w-full mb-6">
-                  <div className="flex justify-between">
-                    <div className="pt-10">
-                      <div className="flex gap-6 items-center ml-5">
-                        {/* Icon Box */}
-                        <div>
-                          <MdWork className="text-blue-600 text-4xl" />
-                        </div>
-
-                        {/* Experience Details */}
-                        <div className="flex flex-col gap-1">
-                          <p className="font-bold text-lg">
-                            {item.company_name} ---- {item.position}
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <GoClock />
-                            <p className="text-sm text-gray-600">
-                              {new Date(item.startDate).toLocaleDateString()} -{" "}
-                              {item.endDate
-                                ? new Date(item.endDate).toLocaleDateString()
-                                : "present"}
-                            </p>
-                          </div>
-                          <p className="text-gray-600">
-                            {item.about_experience}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-            {/* Add Experience Button */}
-            <div className="flex items-center gap-1 bg-blue-600 cursor-pointer text-white px-5 py-2 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 transition-all mt-6">
-              <MdAdd />
-              <button onClick={() => setOpenAddEditModal_exp(true)}>
-                Əlavə et
-              </button>
-            </div>
-          </div>
-        </div>
+        <ExperienceCard
+          data={experienceData}
+          modalType={setOpenAddEditModal_exp}
+        />
 
         {/* Modal content */}
         <Modal
@@ -958,119 +680,10 @@ const MyProfile = () => {
           className="fixed inset-0 z-50 overflow-y-auto"
           contentLabel=""
         >
-          <div className="add-notes-modal w-full max-w-4xl bg-white rounded-lg mx-auto mt-14 p-8 shadow-lg relative">
-            <div className="flex justify-between items-center mb-4">
-              <h1 className="text-2xl font-bold text-gray-800 tracking-wide">
-                Təcrübə
-              </h1>
-              <button
-                className="bg-gray-200 hover:bg-gray-300 text-gray-600 px-3 py-2 rounded-full focus:outline-none"
-                onClick={() => setOpenAddEditModal_exp(false)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="">
-              <div className="flex flex-col lg:gap-8 lg:flex-row">
-                <div className="mb-4 flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Şirkətin adı
-                  </label>
-                  <input
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                    type="text"
-                    placeholder="Şirkətin adı"
-                    className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div className="mb-4 flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Vəzifə
-                  </label>
-                  <input
-                    value={position}
-                    onChange={(e) => setPosition(e.target.value)}
-                    type="text"
-                    placeholder="Vəzifə"
-                    className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col lg:gap-8 lg:flex-row">
-                <div className="mb-4 flex-1 ">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Start date
-                  </label>
-                  <input
-                    value={experienceStartDate}
-                    onChange={(e) => {
-                      setExperienceStartDate(e.target.value);
-                    }}
-                    type="date"
-                    className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div className="mb-4 flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    End date
-                  </label>
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="date"
-                      id="endDate"
-                      className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-                      disabled={isPresent}
-                      placeholder="mm/dd/yyyy"
-                      value={isPresent ? "" : experienceEndDate}
-                      onChange={(e) => {
-                        setExperienceEndDate(e.target.value);
-                      }}
-                    />
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id="isPresent"
-                        className="mr-2"
-                        checked={isPresent}
-                        onChange={handlePresentCheckboxChange}
-                      />
-                      <label
-                        htmlFor="isPresent"
-                        className="text-sm text-gray-700"
-                      >
-                        Present
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="">
-              <div className="mb-4 flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  About work
-                </label>
-                <textarea
-                  value={about_experience}
-                  onChange={(e) => setAbout_experience(e.target.value)}
-                  placeholder="Write information about work"
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none resize-none h-32"
-                />
-              </div>
-              <div className="flex items-center justify-center lg:items-start lg:justify-end">
-                <button
-                  onClick={() => {
-                    AddExperience();
-                  }}
-                  className="w-full lg:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition-all duration-200 ease-in-out"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          </div>
+          <ExperienceModal
+            modalType={setOpenAddEditModal_exp}
+            fetchData={fetchExperienceData}
+          />
         </Modal>
       </div>
 

@@ -173,9 +173,11 @@ const Appointment = () => {
               </p>
               <div className="flex items-center gap-2 text-sm mt-1 text-gray-600">
                 <p>{docInfo.speciality} teacher</p>
-                <button className="py-0.5 px-2 border text-xs rounded-full">
-                  {docInfo.experience || "N/A"}
-                </button>
+                {docInfo.experience && (
+                  <button className="py-0.5 px-2 border text-xs rounded-full ">
+                    {docInfo.experience}
+                  </button>
+                )}
               </div>
 
               {/* Doctor about */}
@@ -190,7 +192,7 @@ const Appointment = () => {
               </div>
 
               <p className="text-gray-500 font-medium mt-4">
-                Price:{" "}
+                Price :{" "}
                 <span className="text-gray-600">
                   {docInfo.price ? `₼ ${docInfo.price}` : "Not specified"}
                 </span>
@@ -199,7 +201,9 @@ const Appointment = () => {
                 <p className="text-gray-500 font-medium mt-4">
                   Phone :{" "}
                   <span className="text-gray-600">
-                    {formatPhoneNumber(docInfo.phone)}
+                    {docInfo.phone
+                      ? `+ ${formatPhoneNumber(docInfo.phone)}`
+                      : "Not specified"}
                   </span>
                 </p>
                 <div className="flex justify-between">
