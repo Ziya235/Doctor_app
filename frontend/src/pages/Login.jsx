@@ -42,7 +42,7 @@ const Login = () => {
       return;
     }
 
-    fetch("http://localhost:5000/login", {
+    fetch("https://teacher-app-1-2wz3.onrender.com/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),

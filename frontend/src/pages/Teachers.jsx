@@ -12,7 +12,7 @@ const Teachers = () => {
 
   useEffect(() => {
     try {
-      fetch("http://localhost:5000/get-all-teacher")
+      fetch("https://teacher-app-1-2wz3.onrender.com/get-all-teacher")
         .then((response) => {
           if (!response.ok) {
             throw new Error("Failed to fetch teachers");
@@ -24,7 +24,7 @@ const Teachers = () => {
           const teachersWithImages = data.users.map(teacher => ({
             ...teacher,
             profileImageUrl: teacher.profileImage
-              ? `http://localhost:5000/${teacher.profileImage.replace(/\\/g, "/")}`
+              ? `https://teacher-app-1-2wz3.onrender.com/${teacher.profileImage.replace(/\\/g, "/")}`
               : null
           }));
 

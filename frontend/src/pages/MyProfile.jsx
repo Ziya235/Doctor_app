@@ -97,7 +97,7 @@ const MyProfile = () => {
 
 
     try {
-      const response = await fetch(`http://localhost:5000/update-profile`, {
+      const response = await fetch(`https://teacher-app-1-2wz3.onrender.com/update-profile`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -134,7 +134,7 @@ const MyProfile = () => {
 
   // Define an async function to fetch the user data
   const fetchUserData = async (userId) => {
-    const url = `http://localhost:5000/get-user/${userId}`;
+    const url = `https://teacher-app-1-2wz3.onrender.com/get-user/${userId}`;
     try {
       const response = await fetch(url);
       if (!response.ok) {
@@ -159,7 +159,7 @@ const MyProfile = () => {
         : "";
 
       const profileImageUrl = data.user.profileImage
-        ? `http://localhost:5000/${data.user.profileImage.replace(/\\/g, "/")}`
+        ? `https://teacher-app-1-2wz3.onrender.com/${data.user.profileImage.replace(/\\/g, "/")}`
         : null;
       setProfileImage1(profileImageUrl);
 
@@ -174,7 +174,7 @@ const MyProfile = () => {
   const fetchUniversityData = async (teacherId) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/get-teacher-universities/${teacherId}`
+        `https://teacher-app-1-2wz3.onrender.com/get-teacher-universities/${teacherId}`
       );
 
       if (!response.ok) {
@@ -189,7 +189,7 @@ const MyProfile = () => {
   };
 
   const fetchExperienceData = async (teacherId) => {
-    const url = `http://localhost:5000/get-teacher-experiences/${teacherId}`;
+    const url = `https://teacher-app-1-2wz3.onrender.com/get-teacher-experiences/${teacherId}`;
     try {
       const response = await fetch(url);
 

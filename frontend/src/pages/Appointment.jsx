@@ -24,7 +24,7 @@ const Appointment = () => {
   useEffect(() => {
     try {
       fetch(`
-        http://localhost:5000/get-teacher-universities/${docId}`)
+        https://teacher-app-1-2wz3.onrender.com/get-teacher-universities/${docId}`)
         .then((response) => {
           if (!response.ok) {
             throw new Error("Network response was not ok");
@@ -40,7 +40,7 @@ const Appointment = () => {
   useEffect(() => {
     try {
       fetch(`
-        http://localhost:5000/get-teacher-experiences/${docId}`)
+        https://teacher-app-1-2wz3.onrender.com/get-teacher-experiences/${docId}`)
         .then((response) => {
           if (!response.ok) {
             throw new Error("Network response was not ok");
@@ -102,7 +102,7 @@ const Appointment = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:5000/get-teacher/${docId}`
+          `https://teacher-app-1-2wz3.onrender.com/get-teacher/${docId}`
         );
 
         if (!response.ok) {
@@ -115,7 +115,7 @@ const Appointment = () => {
         const teacherWithImage = {
           ...data.user,
           profileImageUrl: data.user.profileImage
-            ? `http://localhost:5000/${data.user.profileImage.replace(
+            ? `https://teacher-app-1-2wz3.onrender.com/${data.user.profileImage.replace(
                 /\\/g,
                 "/"
               )}`

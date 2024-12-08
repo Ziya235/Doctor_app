@@ -53,7 +53,7 @@ const EducationModal = ({ modalType, fetchData }) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/create-university`, {
+      const response = await fetch(`https://teacher-app-1-2wz3.onrender.com/create-university`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

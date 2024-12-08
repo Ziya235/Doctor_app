@@ -28,9 +28,6 @@ app.get("/", (req, res) => {
   res.json({ data: " hello" });
 });
 
-//Create Account
-
-// Configure multer for file upload
 
 const path = require("path");
 const multer = require("multer");

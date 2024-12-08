@@ -76,7 +76,7 @@ const ProfileUpdateForm = () => {
 
       // Make API call
       const response = await axios.put(
-        'http://localhost:5000/update-profile', 
+        'https://teacher-app-1-2wz3.onrender.com/update-profile', 
         formDataToSend, 
         {
           headers: {

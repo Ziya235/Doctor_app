@@ -50,7 +50,7 @@ const ExperienceModal = ({ modalType, fetchData }) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/create-experience`, {
+      const response = await fetch(`https://teacher-app-1-2wz3.onrender.com/create-experience`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

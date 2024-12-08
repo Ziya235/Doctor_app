@@ -71,7 +71,7 @@ const Register = () => {
     }
 
 
-    fetch("http://localhost:5000/create-account", {
+    fetch("https://teacher-app-1-2wz3.onrender.com/create-account", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, surname, speciality, email, password }),
